@@ -32,28 +32,33 @@ const properties = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-cyan-50">
       {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-cyan-300 blur-3xl" />
-          <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-purple-400 blur-3xl" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-900">
+        {/* Background glow */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -left-20 -top-20 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl" />
+          <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-3xl" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-6 py-20 lg:py-28">
           <div className="grid items-center gap-12 lg:grid-cols-2">
+            
             {/* LEFT */}
             <div className="text-center lg:text-left">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-blue-100 backdrop-blur">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200 backdrop-blur">
                 ✨ Trusted student accommodation platform
               </div>
 
               <h1 className="text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
                 Find Your Perfect
-                <span className="block text-cyan-300">Student Stay.</span>
+                <span className="block bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+                  Student Stay.
+                </span>
               </h1>
 
-              <p className="mt-6 max-w-xl text-lg leading-8 text-blue-100">
+              <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300">
                 Discover verified hostels and PG accommodations near your college.
                 No brokers, no hidden charges — just simple and reliable booking.
               </p>
@@ -61,14 +66,14 @@ export default function Home() {
               <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
                 <Link
                   href="/dashboard/student"
-                  className="rounded-xl bg-white px-7 py-4 text-center font-bold text-blue-700 shadow-xl transition hover:-translate-y-1 hover:bg-blue-50"
+                  className="rounded-xl bg-cyan-400 px-7 py-4 text-center font-bold text-slate-950 shadow-xl shadow-cyan-500/20 transition hover:-translate-y-1 hover:bg-cyan-300"
                 >
                   Explore Hostels →
                 </Link>
 
                 <Link
                   href="/dashboard/manager"
-                  className="rounded-xl border border-white/40 bg-white/10 px-7 py-4 text-center font-bold text-white backdrop-blur transition hover:bg-white/20"
+                  className="rounded-xl border border-cyan-400/30 bg-white/5 px-7 py-4 text-center font-bold text-white backdrop-blur transition hover:bg-cyan-400/10"
                 >
                   List Your Property
                 </Link>
@@ -77,25 +82,25 @@ export default function Home() {
               {/* Stats */}
               <div className="mt-10 flex justify-center gap-8 text-white lg:justify-start">
                 <div>
-                  <p className="text-2xl font-bold">500+</p>
-                  <p className="text-sm text-blue-200">Properties</p>
+                  <p className="text-2xl font-bold text-cyan-300">500+</p>
+                  <p className="text-sm text-slate-400">Properties</p>
                 </div>
 
                 <div>
-                  <p className="text-2xl font-bold">10K+</p>
-                  <p className="text-sm text-blue-200">Students</p>
+                  <p className="text-2xl font-bold text-cyan-300">10K+</p>
+                  <p className="text-sm text-slate-400">Students</p>
                 </div>
 
                 <div>
-                  <p className="text-2xl font-bold">4.8★</p>
-                  <p className="text-sm text-blue-200">Average Rating</p>
+                  <p className="text-2xl font-bold text-cyan-300">4.8★</p>
+                  <p className="text-sm text-slate-400">Average Rating</p>
                 </div>
               </div>
             </div>
 
             {/* RIGHT */}
             <div className="relative">
-              <div className="overflow-hidden rounded-3xl border border-white/20 bg-white/10 p-3 shadow-2xl backdrop-blur">
+              <div className="overflow-hidden rounded-3xl border border-cyan-400/20 bg-white/5 p-3 shadow-2xl shadow-cyan-950/50 backdrop-blur">
                 <img
                   src="https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1200&q=85"
                   alt="Modern student accommodation"
@@ -103,14 +108,16 @@ export default function Home() {
                 />
               </div>
 
-              <div className="absolute -bottom-6 -left-4 rounded-2xl bg-white p-4 shadow-xl sm:-left-8">
+              <div className="absolute -bottom-6 -left-4 rounded-2xl border border-cyan-100 bg-white p-4 shadow-xl sm:-left-8">
                 <p className="text-sm text-slate-500">Verified Properties</p>
-                <p className="text-xl font-bold text-slate-900">✓ 100% Checked</p>
+                <p className="text-xl font-bold text-slate-900">
+                  ✓ 100% Checked
+                </p>
               </div>
 
-              <div className="absolute -right-3 top-8 rounded-2xl bg-white p-4 shadow-xl">
+              <div className="absolute -right-3 top-8 rounded-2xl border border-cyan-100 bg-white p-4 shadow-xl">
                 <p className="text-sm text-slate-500">Starting from</p>
-                <p className="text-xl font-bold text-blue-600">₹6,500/mo</p>
+                <p className="text-xl font-bold text-cyan-600">₹6,500/mo</p>
               </div>
             </div>
           </div>
@@ -119,7 +126,7 @@ export default function Home() {
 
       {/* SEARCH */}
       <section className="relative z-10 mx-auto -mt-8 max-w-6xl px-6">
-        <div className="rounded-2xl bg-white p-5 shadow-xl">
+        <div className="rounded-2xl border border-cyan-100 bg-white p-5 shadow-2xl shadow-slate-900/10">
           <div className="grid gap-4 md:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -127,7 +134,7 @@ export default function Home() {
               </label>
               <input
                 placeholder="Enter city or area"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
               />
             </div>
 
@@ -135,7 +142,7 @@ export default function Home() {
               <label className="mb-2 block text-sm font-semibold text-slate-700">
                 🏠 Stay Type
               </label>
-              <select className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none">
+              <select className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100">
                 <option>Any type</option>
                 <option>Hostel</option>
                 <option>PG</option>
@@ -147,7 +154,7 @@ export default function Home() {
               <label className="mb-2 block text-sm font-semibold text-slate-700">
                 💰 Budget
               </label>
-              <select className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none">
+              <select className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100">
                 <option>Any budget</option>
                 <option>Under ₹7,000</option>
                 <option>₹7,000 - ₹10,000</option>
@@ -158,7 +165,7 @@ export default function Home() {
             <div className="flex items-end">
               <Link
                 href="/dashboard/student"
-                className="w-full rounded-xl bg-blue-600 px-6 py-3 text-center font-bold text-white transition hover:bg-blue-700"
+                className="w-full rounded-xl bg-slate-950 px-6 py-3 text-center font-bold text-cyan-300 transition hover:bg-cyan-500 hover:text-slate-950"
               >
                 Search Properties 🔍
               </Link>
@@ -170,9 +177,11 @@ export default function Home() {
       {/* FEATURES */}
       <section className="mx-auto max-w-7xl px-6 py-24">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="font-semibold text-blue-600">WHY HOSTELCONNECT?</p>
+          <p className="font-bold tracking-wider text-cyan-600">
+            WHY HOSTELCONNECT?
+          </p>
 
-          <h2 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">
             Everything you need for a stress-free stay
           </h2>
 
@@ -182,8 +191,8 @@ export default function Home() {
         </div>
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-2xl">
+          <div className="rounded-2xl border border-cyan-100 bg-white p-8 shadow-sm transition hover:-translate-y-2 hover:border-cyan-300 hover:shadow-xl">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-100 text-2xl">
               🛡️
             </div>
 
@@ -197,8 +206,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 text-2xl">
+          <div className="rounded-2xl border border-cyan-100 bg-white p-8 shadow-sm transition hover:-translate-y-2 hover:border-cyan-300 hover:shadow-xl">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-100 text-2xl">
               💰
             </div>
 
@@ -212,8 +221,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-100 bg-white p-8 shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 text-2xl">
+          <div className="rounded-2xl border border-cyan-100 bg-white p-8 shadow-sm transition hover:-translate-y-2 hover:border-cyan-300 hover:shadow-xl">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-2xl">
               ⚡
             </div>
 
@@ -234,10 +243,14 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <p className="font-semibold text-blue-600">EXPLORE</p>
-              <h2 className="mt-2 text-3xl font-bold text-slate-900">
+              <p className="font-bold tracking-wider text-cyan-600">
+                EXPLORE
+              </p>
+
+              <h2 className="mt-2 text-3xl font-bold text-slate-950">
                 Featured Properties
               </h2>
+
               <p className="mt-3 text-slate-600">
                 Popular stays chosen by students.
               </p>
@@ -245,7 +258,7 @@ export default function Home() {
 
             <Link
               href="/dashboard/student"
-              className="font-semibold text-blue-600 hover:text-blue-800"
+              className="font-semibold text-cyan-600 transition hover:text-cyan-800"
             >
               View all properties →
             </Link>
@@ -255,7 +268,7 @@ export default function Home() {
             {properties.map((property) => (
               <div
                 key={property.name}
-                className="group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:-translate-y-2 hover:shadow-xl"
+                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-2 hover:border-cyan-300 hover:shadow-xl"
               >
                 <div className="relative overflow-hidden">
                   <img
@@ -264,11 +277,11 @@ export default function Home() {
                     className="h-56 w-full object-cover transition duration-500 group-hover:scale-110"
                   />
 
-                  <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-bold text-green-600 shadow">
+                  <span className="absolute left-4 top-4 rounded-full bg-slate-950 px-3 py-1 text-xs font-bold text-cyan-300 shadow-lg">
                     ✓ {property.tag}
                   </span>
 
-                  <button className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg shadow">
+                  <button className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg shadow transition hover:scale-110">
                     ♡
                   </button>
                 </div>
@@ -288,9 +301,9 @@ export default function Home() {
                     📍 {property.location}
                   </p>
 
-                  <div className="mt-5 flex items-center justify-between border-t pt-5">
+                  <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-5">
                     <div>
-                      <span className="text-xl font-bold text-slate-900">
+                      <span className="text-xl font-bold text-slate-950">
                         {property.price}
                       </span>
                       <span className="text-sm text-slate-500"> / month</span>
@@ -298,7 +311,7 @@ export default function Home() {
 
                     <Link
                       href="/dashboard/student"
-                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-cyan-500 hover:text-slate-950"
                     >
                       View
                     </Link>
@@ -312,31 +325,38 @@ export default function Home() {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-6 py-24">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-blue-700 to-indigo-700 px-8 py-16 text-center shadow-2xl">
-          <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Ready to find your next home?
-          </h2>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-cyan-900 px-8 py-16 text-center shadow-2xl">
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
 
-          <p className="mx-auto mt-4 max-w-2xl text-blue-100">
-            Join students who are finding affordable and verified accommodation
-            without the hassle.
-          </p>
+          <div className="relative">
+            <h2 className="text-3xl font-bold text-white sm:text-4xl">
+              Ready to find your next home?
+            </h2>
 
-          <Link
-            href="/dashboard/student"
-            className="mt-8 inline-block rounded-xl bg-white px-8 py-4 font-bold text-blue-700 transition hover:scale-105"
-          >
-            Get Started for Free →
-          </Link>
+            <p className="mx-auto mt-4 max-w-2xl text-slate-300">
+              Join students who are finding affordable and verified accommodation
+              without the hassle.
+            </p>
+
+            <Link
+              href="/dashboard/student"
+              className="mt-8 inline-block rounded-xl bg-cyan-400 px-8 py-4 font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:scale-105 hover:bg-cyan-300"
+            >
+              Get Started for Free →
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t bg-white">
+      <footer className="border-t border-slate-800 bg-slate-950">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
           <div>
-            <p className="text-lg font-bold text-blue-600">HostelConnect</p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="text-lg font-bold text-white">
+              Hostel<span className="text-cyan-400">Connect</span>
+            </p>
+
+            <p className="mt-1 text-sm text-slate-400">
               Find your perfect student accommodation.
             </p>
           </div>
