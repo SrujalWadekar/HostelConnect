@@ -15,7 +15,6 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Keep your existing login behavior
     if (userType === "MANAGER") {
       router.push("/dashboard/manager");
     } else {
@@ -24,24 +23,33 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 px-4 py-12">
-      <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl shadow-blue-200/50 lg:grid-cols-2">
+    <main className="relative min-h-screen overflow-hidden bg-cyan-50 px-4 py-12">
+      
+      {/* Background Glow */}
+      <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-cyan-400/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
+
+      <div className="relative mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-cyan-100 bg-white shadow-2xl shadow-slate-900/10 lg:grid-cols-2">
 
         {/* LEFT SIDE - LOGIN FORM */}
         <div className="p-8 sm:p-12">
+          
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-lg font-bold text-blue-600"
+            className="inline-flex items-center gap-2 text-lg font-bold text-slate-950"
           >
-            🏠 HostelConnect
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/20">
+              🏠
+            </span>
+            Hostel<span className="text-cyan-600">Connect</span>
           </Link>
 
           <div className="mt-10">
-            <div className="inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">
+            <div className="inline-flex rounded-full border border-cyan-200 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
               Welcome back 👋
             </div>
 
-            <h1 className="mt-5 text-3xl font-black text-slate-900 sm:text-4xl">
+            <h1 className="mt-5 text-3xl font-black text-slate-950 sm:text-4xl">
               Sign in to your account
             </h1>
 
@@ -64,12 +72,14 @@ export default function LoginPage() {
                   onClick={() => setUserType("STUDENT")}
                   className={`rounded-xl border-2 p-4 text-left transition ${
                     userType === "STUDENT"
-                      ? "border-blue-600 bg-blue-50"
-                      : "border-slate-200 hover:border-blue-300"
+                      ? "border-cyan-500 bg-cyan-50 shadow-sm shadow-cyan-100"
+                      : "border-slate-200 bg-white hover:border-cyan-300"
                   }`}
                 >
                   <div className="text-xl">🎓</div>
-                  <p className="mt-2 font-bold text-slate-900">Student</p>
+                  <p className="mt-2 font-bold text-slate-900">
+                    Student
+                  </p>
                   <p className="text-xs text-slate-500">
                     Find accommodation
                   </p>
@@ -80,12 +90,14 @@ export default function LoginPage() {
                   onClick={() => setUserType("MANAGER")}
                   className={`rounded-xl border-2 p-4 text-left transition ${
                     userType === "MANAGER"
-                      ? "border-blue-600 bg-blue-50"
-                      : "border-slate-200 hover:border-blue-300"
+                      ? "border-cyan-500 bg-cyan-50 shadow-sm shadow-cyan-100"
+                      : "border-slate-200 bg-white hover:border-cyan-300"
                   }`}
                 >
                   <div className="text-xl">🏠</div>
-                  <p className="mt-2 font-bold text-slate-900">Manager</p>
+                  <p className="mt-2 font-bold text-slate-900">
+                    Manager
+                  </p>
                   <p className="text-xs text-slate-500">
                     Manage properties
                   </p>
@@ -110,7 +122,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
                 />
               </div>
             </div>
@@ -132,13 +144,13 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-16 text-sm outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-16 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-blue-600 hover:text-blue-800"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-cyan-600 hover:text-cyan-800"
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
@@ -150,14 +162,14 @@ export default function LoginPage() {
               <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 accent-blue-600"
+                  className="h-4 w-4 accent-cyan-500"
                 />
                 Remember me
               </label>
 
               <button
                 type="button"
-                className="text-sm font-semibold text-blue-600 hover:text-blue-800"
+                className="text-sm font-semibold text-cyan-600 hover:text-cyan-800"
               >
                 Forgot password?
               </button>
@@ -166,7 +178,7 @@ export default function LoginPage() {
             {/* LOGIN BUTTON */}
             <button
               type="submit"
-              className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3.5 font-bold text-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
+              className="w-full rounded-xl bg-gradient-to-r from-slate-950 via-blue-950 to-cyan-700 py-3.5 font-bold text-white shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cyan-500/30"
             >
               Sign In →
             </button>
@@ -177,81 +189,82 @@ export default function LoginPage() {
             Don't have an account?{" "}
             <Link
               href="/signup"
-              className="font-bold text-blue-600 hover:text-blue-800 hover:underline"
+              className="font-bold text-cyan-600 hover:text-cyan-800 hover:underline"
             >
               Create an account
             </Link>
           </p>
         </div>
 
-        {/* RIGHT SIDE - VISUAL ONLY */}
-        <div className="relative hidden overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        {/* RIGHT SIDE */}
+        <div className="relative hidden overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-900 p-12 text-white lg:flex lg:flex-col lg:justify-between">
 
-          {/* Decorative circles */}
+          {/* Decorative glow */}
           <div className="absolute -left-20 -top-20 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl" />
-          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-purple-400/30 blur-3xl" />
+          <div className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
 
           <div className="relative">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm backdrop-blur">
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-100 backdrop-blur">
               ✨ Student accommodation made simple
             </div>
 
             <h2 className="mt-8 text-4xl font-black leading-tight">
               Your perfect
-              <span className="block text-cyan-300">
+              <span className="block text-cyan-400">
                 student stay
               </span>
               is waiting.
             </h2>
 
-            <p className="mt-5 leading-7 text-blue-100">
+            <p className="mt-5 leading-7 text-slate-300">
               Discover verified hostels and PGs near your college without
               brokers, hidden fees, or unnecessary hassle.
             </p>
           </div>
 
-          {/* Feature cards */}
+          {/* Feature Cards */}
           <div className="relative space-y-4">
-            <div className="flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-xl">
+            <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-xl">
                 🛡️
               </div>
 
               <div>
                 <p className="font-bold">Verified Properties</p>
-                <p className="text-sm text-blue-100">
+                <p className="text-sm text-slate-400">
                   Safe and trusted accommodation
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-xl">
+            <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-400/10 text-xl">
                 💰
               </div>
 
               <div>
                 <p className="font-bold">No Broker Fees</p>
-                <p className="text-sm text-blue-100">
+                <p className="text-sm text-slate-400">
                   Connect directly with managers
                 </p>
               </div>
             </div>
 
+            {/* Stats */}
             <div className="grid grid-cols-3 gap-3 pt-4">
-              <div className="rounded-xl bg-white/10 p-3 text-center backdrop-blur">
-                <p className="font-bold">500+</p>
-                <p className="text-xs text-blue-200">Properties</p>
+              <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-center backdrop-blur">
+                <p className="font-bold text-cyan-300">500+</p>
+                <p className="text-xs text-slate-400">Properties</p>
               </div>
 
-              <div className="rounded-xl bg-white/10 p-3 text-center backdrop-blur">
-                <p className="font-bold">10K+</p>
-                <p className="text-xs text-blue-200">Students</p>
+              <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-center backdrop-blur">
+                <p className="font-bold text-cyan-300">10K+</p>
+                <p className="text-xs text-slate-400">Students</p>
               </div>
 
-              <div className="rounded-xl bg-white/10 p-3 text-center backdrop-blur">
-                <p className="font-bold">4.8★</p>
-                <p className="text-xs text-blue-200">Rating</p>
+              <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-center backdrop-blur">
+                <p className="font-bold text-cyan-300">4.8★</p>
+                <p className="text-xs text-slate-400">Rating</p>
               </div>
             </div>
           </div>
