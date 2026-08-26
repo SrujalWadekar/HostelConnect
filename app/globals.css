@@ -67,3 +67,179 @@ select:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: #06b6d4;
 }
+
+/* ================================
+   LOGIN PAGE ANIMATIONS
+================================ */
+
+@keyframes loginSlideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes loginSlideRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes loginFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes loginFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes loginFloat {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes loginFloatReverse {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(20px);
+  }
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(20deg);
+  }
+
+  50% {
+    transform: rotate(-10deg);
+  }
+
+  75% {
+    transform: rotate(15deg);
+  }
+}
+
+/* MAIN PANELS */
+
+.login-form-panel {
+  animation: loginSlideLeft 0.8s ease-out both;
+}
+
+.login-right-panel {
+  animation: loginSlideRight 0.9s ease-out both;
+}
+
+/* LEFT SIDE */
+
+.login-logo {
+  animation: loginFadeUp 0.6s ease-out both;
+}
+
+.login-heading {
+  animation: loginFadeUp 0.7s ease-out 0.15s both;
+}
+
+.login-form {
+  animation: loginFadeUp 0.8s ease-out 0.3s both;
+}
+
+.login-field {
+  animation: loginFadeUp 0.6s ease-out 0.4s both;
+}
+
+.login-field-delay {
+  animation: loginFadeUp 0.6s ease-out 0.5s both;
+}
+
+.login-field-delay-2 {
+  animation: loginFadeUp 0.6s ease-out 0.6s both;
+}
+
+.login-button {
+  animation: loginFadeUp 0.7s ease-out 0.7s both;
+}
+
+.login-signup {
+  animation: loginFadeIn 0.8s ease-out 0.9s both;
+}
+
+/* RIGHT SIDE */
+
+.login-badge {
+  animation: loginFadeUp 0.6s ease-out 0.3s both;
+}
+
+.login-title {
+  animation: loginFadeUp 0.7s ease-out 0.45s both;
+}
+
+.login-description {
+  animation: loginFadeUp 0.7s ease-out 0.6s both;
+}
+
+.login-feature {
+  animation: loginSlideRight 0.7s ease-out 0.7s both;
+}
+
+.login-feature-delay {
+  animation: loginSlideRight 0.7s ease-out 0.85s both;
+}
+
+.login-stats {
+  animation: loginFadeUp 0.7s ease-out 1s both;
+}
+
+/* BACKGROUND */
+
+.login-orb-1 {
+  animation: loginFloat 8s ease-in-out infinite;
+}
+
+.login-orb-2 {
+  animation: loginFloatReverse 10s ease-in-out infinite;
+}
+
+.animate-wave {
+  display: inline-block;
+  animation: wave 2s ease-in-out infinite;
+}
