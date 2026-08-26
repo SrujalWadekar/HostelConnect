@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -24,8 +25,7 @@ export default function SignupPage() {
     }
   };
 
-  // Animation for groups of elements
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: {},
     visible: {
       transition: {
@@ -34,8 +34,7 @@ export default function SignupPage() {
     },
   };
 
-  // Animation for individual elements
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: {
       opacity: 0,
       y: 25,
@@ -45,14 +44,14 @@ export default function SignupPage() {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: [0.16, 1, 0.3, 1],
+        ease: "easeOut",
       },
     },
   };
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-cyan-50 px-4 py-12">
-      {/* ANIMATED BACKGROUND GLOWS */}
+      {/* ANIMATED BACKGROUND */}
       <motion.div
         animate={{
           x: [0, 50, 0],
@@ -95,11 +94,11 @@ export default function SignupPage() {
         }}
         transition={{
           duration: 0.8,
-          ease: [0.16, 1, 0.3, 1],
+          ease: "easeOut",
         }}
         className="relative mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-cyan-100 bg-white shadow-2xl shadow-slate-900/10 lg:grid-cols-2"
       >
-        {/* LEFT SIDE - FORM */}
+        {/* LEFT SIDE */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -333,12 +332,9 @@ export default function SignupPage() {
             </motion.button>
           </motion.form>
 
-          {/* LOGIN LINK */}
+          {/* LOGIN */}
           <motion.p
             variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-            transition={{ delay: 1 }}
             className="mt-8 text-center text-sm text-slate-600"
           >
             Already have an account?{" "}
@@ -351,7 +347,7 @@ export default function SignupPage() {
           </motion.p>
         </motion.div>
 
-        {/* RIGHT SIDE - VISUAL */}
+        {/* RIGHT SIDE */}
         <motion.div
           initial={{
             opacity: 0,
@@ -364,11 +360,11 @@ export default function SignupPage() {
           transition={{
             duration: 0.9,
             delay: 0.25,
-            ease: [0.16, 1, 0.3, 1],
+            ease: "easeOut",
           }}
           className="relative hidden overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-900 p-12 text-white lg:flex lg:flex-col lg:justify-between"
         >
-          {/* ANIMATED GLOWS */}
+          {/* GLOWS */}
           <motion.div
             animate={{
               x: [0, 40, 0],
@@ -395,7 +391,7 @@ export default function SignupPage() {
             className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl"
           />
 
-          {/* TOP CONTENT */}
+          {/* CONTENT */}
           <div className="relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
