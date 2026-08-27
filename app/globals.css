@@ -77,7 +77,6 @@ select:focus {
     opacity: 0;
     transform: translateX(-40px);
   }
-
   to {
     opacity: 1;
     transform: translateX(0);
@@ -89,7 +88,6 @@ select:focus {
     opacity: 0;
     transform: translateX(40px);
   }
-
   to {
     opacity: 1;
     transform: translateX(0);
@@ -101,7 +99,6 @@ select:focus {
     opacity: 0;
     transform: translateY(25px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -112,7 +109,6 @@ select:focus {
   from {
     opacity: 0;
   }
-
   to {
     opacity: 1;
   }
@@ -123,7 +119,6 @@ select:focus {
   100% {
     transform: translateY(0px);
   }
-
   50% {
     transform: translateY(-15px);
   }
@@ -134,7 +129,6 @@ select:focus {
   100% {
     transform: translateY(0px);
   }
-
   50% {
     transform: translateY(20px);
   }
@@ -145,15 +139,12 @@ select:focus {
   100% {
     transform: rotate(0deg);
   }
-
   25% {
     transform: rotate(20deg);
   }
-
   50% {
     transform: rotate(-10deg);
   }
-
   75% {
     transform: rotate(15deg);
   }
