@@ -2,18 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
-  const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userType, setUserType] = useState<"STUDENT" | "MANAGER">("STUDENT");
+  const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
+  const isLoggedIn = status === "authenticated" && !!session;
+
+  const handleLogout = async () => {
     setMenuOpen(false);
-    router.push("/");
+    await signOut({ callbackUrl: "/" });
   };
 
   return (
@@ -43,7 +42,9 @@ export default function Navbar() {
 
         {/* DESKTOP MENU */}
         <div className="hidden items-center gap-2 md:flex">
-          {!isLoggedIn && (
+          {status === "loading" ? (
+            <div className="h-9 w-28 animate-pulse rounded-lg bg-slate-800" />
+          ) : !isLoggedIn ? (
             <>
               <Link
                 href="/"
@@ -66,34 +67,36 @@ export default function Navbar() {
                 Get Started →
               </Link>
             </>
-          )}
-
-          {isLoggedIn && (
+          ) : (
             <>
               <Link
-                href={
-                  userType === "STUDENT"
-                    ? "/dashboard/student"
-                    : "/dashboard/manager"
-                }
+                href="/dashboard/student"
                 className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-cyan-500/10 hover:text-cyan-400"
               >
                 Dashboard
               </Link>
 
-              <div className="mx-3 h-7 w-px bg-slate-700" />
+              <div className="mx-3 h-7 w-px bg-slate-800" />
 
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/10 text-sm ring-1 ring-cyan-400/30">
-                  {userType === "STUDENT" ? "🎓" : "🏠"}
-                </div>
+              <div className="flex items-center gap-2.5">
+                {session.user?.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name || "User Avatar"}
+                    className="h-9 w-9 rounded-full border border-cyan-400/40 object-cover"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/10 text-sm font-bold text-cyan-400 ring-1 ring-cyan-400/30">
+                    {session.user?.name?.charAt(0) || "🎓"}
+                  </div>
+                )}
 
                 <div className="mr-2 hidden lg:block">
                   <p className="text-xs font-bold text-white">
-                    {userType === "STUDENT" ? "Student" : "Manager"}
+                    {session.user?.name || "Student"}
                   </p>
-                  <p className="text-[10px] text-slate-400">
-                    HostelConnect
+                  <p className="max-w-[130px] truncate text-[10px] text-slate-400">
+                    {session.user?.email || "HostelConnect"}
                   </p>
                 </div>
 
@@ -122,7 +125,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="border-t border-slate-800 bg-slate-950 px-5 py-4 shadow-2xl md:hidden">
           <div className="flex flex-col gap-2">
-            {!isLoggedIn && (
+            {!isLoggedIn ? (
               <>
                 <Link
                   href="/"
@@ -148,16 +151,32 @@ export default function Navbar() {
                   Create Account →
                 </Link>
               </>
-            )}
-
-            {isLoggedIn && (
+            ) : (
               <>
+                <div className="mb-2 flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5">
+                  {session.user?.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || "User Avatar"}
+                      className="h-10 w-10 rounded-full border border-cyan-400/40 object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500/10 text-sm font-bold text-cyan-400 ring-1 ring-cyan-400/30">
+                      {session.user?.name?.charAt(0) || "🎓"}
+                    </div>
+                  )}
+                  <div className="overflow-hidden">
+                    <p className="truncate text-sm font-bold text-white">
+                      {session.user?.name}
+                    </p>
+                    <p className="truncate text-xs text-slate-400">
+                      {session.user?.email}
+                    </p>
+                  </div>
+                </div>
+
                 <Link
-                  href={
-                    userType === "STUDENT"
-                      ? "/dashboard/student"
-                      : "/dashboard/manager"
-                  }
+                  href="/dashboard/student"
                   onClick={() => setMenuOpen(false)}
                   className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-cyan-500/10 hover:text-cyan-400"
                 >
