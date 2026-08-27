@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
+import { GenderAllowed } from "@prisma/client";
 
 export async function createHostel(formData: FormData) {
   const session = await getServerSession(authOptions);
@@ -26,7 +27,9 @@ export async function createHostel(formData: FormData) {
   const dailyPrice = parseInt(formData.get("dailyPrice") as string, 10);
   const monthlyPrice = parseInt(formData.get("monthlyPrice") as string, 10);
   const availableBeds = parseInt(formData.get("availableBeds") as string, 10);
-  const gender = (formData.get("gender") as string) || "ANY";
+  
+  // FIX: Cast the incoming form string strictly to the Prisma Enum type
+  const gender = (formData.get("gender") as GenderAllowed) || GenderAllowed.ANY;
 
   if (!name || !city || !address || isNaN(dailyPrice) || isNaN(monthlyPrice) || isNaN(availableBeds)) {
     throw new Error("Please provide all required fields with valid numbers.");
