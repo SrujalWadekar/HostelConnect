@@ -8,16 +8,9 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
-  },
-  callbacks: {
-    async session({ session, token }: any) {
-      if (session?.user) {
-        session.user.id = token.sub;
-      }
-      return session;
-    },
   },
 };
 
