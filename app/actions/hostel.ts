@@ -1,0 +1,52 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { revalidatePath } from "next/cache";
+
+export async function createHostel(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    throw new Error("Unauthorized: Please sign in to create a listing.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!user) {
+    throw new Error("Manager profile not found in database.");
+  }
+
+  const name = formData.get("name") as string;
+  const city = formData.get("city") as string;
+  const address = formData.get("address") as string;
+  const dailyPrice = parseInt(formData.get("dailyPrice") as string, 10);
+  const monthlyPrice = parseInt(formData.get("monthlyPrice") as string, 10);
+  const availableBeds = parseInt(formData.get("availableBeds") as string, 10);
+  const gender = (formData.get("gender") as string) || "ANY";
+
+  if (!name || !city || !address || isNaN(dailyPrice) || isNaN(monthlyPrice) || isNaN(availableBeds)) {
+    throw new Error("Please provide all required fields with valid numbers.");
+  }
+
+  const newHostel = await prisma.hostel.create({
+    data: {
+      name,
+      city,
+      address,
+      dailyPrice,
+      monthlyPrice,
+      availableBeds,
+      gender,
+      managerId: user.id,
+    },
+  });
+
+  revalidatePath("/dashboard/manager");
+  revalidatePath("/dashboard/student");
+
+  return { success: true, hostelId: newHostel.id };
+}
