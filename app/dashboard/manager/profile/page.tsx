@@ -4,7 +4,33 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-const formatINR = (amount: number) => {
+interface HostelProfileData {
+  id: string;
+  name: string;
+  type: "HOSTEL" | "PG";
+  city: string;
+  monthlyPrice: number;
+  availableBeds: number;
+  _count: {
+    bookings: number;
+  };
+}
+
+interface PropertyMetric {
+  id: string;
+  name: string;
+  type: "HOSTEL" | "PG";
+  city: string;
+  capacity: number;
+  occupied: number;
+  vacant: number;
+  realizedMonthly: number;
+  potentialMonthly: number;
+  vacancyLoss: number;
+  efficiencyRate: number;
+}
+
+const formatINR = (amount: number): string => {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
@@ -20,11 +46,12 @@ export default async function ManagerProfilePage() {
   }
 
   // Database-level lean projection: Fetches only counts and pricing
-  const hostels = await prisma.hostel.findMany({
+  const rawHostels = await prisma.hostel.findMany({
     where: { manager: { email: session.user.email } },
     select: {
       id: true,
       name: true,
+      type: true,
       city: true,
       monthlyPrice: true,
       availableBeds: true,
@@ -38,45 +65,51 @@ export default async function ManagerProfilePage() {
     },
   });
 
+  const hostels: HostelProfileData[] = rawHostels as unknown as HostelProfileData[];
+
   let totalBedsCapacity = 0;
   let totalOccupiedBeds = 0;
   let totalVacantBeds = 0;
   let actualRevenue = 0;
   let maxPotentialRevenue = 0;
 
-  const propertyMetrics = hostels.map((hostel) => {
-    const confirmedCount = hostel._count.bookings;
-    const capacity = hostel.availableBeds + confirmedCount;
-    const vacancy = hostel.availableBeds;
+  const propertyMetrics: PropertyMetric[] = hostels.map(
+    (hostel: HostelProfileData): PropertyMetric => {
+      const confirmedCount = hostel._count.bookings;
+      const capacity = hostel.availableBeds + confirmedCount;
+      const vacancy = hostel.availableBeds;
 
-    const realizedMonthly = confirmedCount * hostel.monthlyPrice;
-    const potentialMonthly = capacity * hostel.monthlyPrice;
-    const vacancyLoss = vacancy * hostel.monthlyPrice;
+      const realizedMonthly = confirmedCount * hostel.monthlyPrice;
+      const potentialMonthly = capacity * hostel.monthlyPrice;
+      const vacancyLoss = vacancy * hostel.monthlyPrice;
 
-    totalBedsCapacity += capacity;
-    totalOccupiedBeds += confirmedCount;
-    totalVacantBeds += vacancy;
-    actualRevenue += realizedMonthly;
-    maxPotentialRevenue += potentialMonthly;
+      totalBedsCapacity += capacity;
+      totalOccupiedBeds += confirmedCount;
+      totalVacantBeds += vacancy;
+      actualRevenue += realizedMonthly;
+      maxPotentialRevenue += potentialMonthly;
 
-    return {
-      id: hostel.id,
-      name: hostel.name,
-      city: hostel.city,
-      capacity,
-      occupied: confirmedCount,
-      vacant: vacancy,
-      realizedMonthly,
-      potentialMonthly,
-      vacancyLoss,
-      efficiencyRate: capacity > 0 ? Math.round((confirmedCount / capacity) * 100) : 0,
-    };
-  });
+      return {
+        id: hostel.id,
+        name: hostel.name,
+        type: hostel.type || "HOSTEL",
+        city: hostel.city,
+        capacity,
+        occupied: confirmedCount,
+        vacant: vacancy,
+        realizedMonthly,
+        potentialMonthly,
+        vacancyLoss,
+        efficiencyRate: capacity > 0 ? Math.round((confirmedCount / capacity) * 100) : 0,
+      };
+    }
+  );
 
   const totalVacancyLoss = maxPotentialRevenue - actualRevenue;
-  const portfolioEfficiency = maxPotentialRevenue > 0
-    ? Math.round((actualRevenue / maxPotentialRevenue) * 100)
-    : 0;
+  const portfolioEfficiency =
+    maxPotentialRevenue > 0
+      ? Math.round((actualRevenue / maxPotentialRevenue) * 100)
+      : 0;
 
   return (
     <div className="min-h-screen bg-[#ecfeff] text-[#020617] p-4 md:p-10 space-y-8 pb-20 font-sans">
@@ -146,6 +179,7 @@ export default async function ManagerProfilePage() {
               <thead className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
                 <tr>
                   <th className="pb-3">Property Name</th>
+                  <th className="pb-3">Type</th>
                   <th className="pb-3">City</th>
                   <th className="pb-3">Capacity</th>
                   <th className="pb-3">Realized Yield</th>
@@ -154,9 +188,14 @@ export default async function ManagerProfilePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {propertyMetrics.map((item) => (
+                {propertyMetrics.map((item: PropertyMetric) => (
                   <tr key={item.id} className="hover:bg-slate-50/80 transition">
                     <td className="py-4 font-bold text-slate-900">{item.name}</td>
+                    <td className="py-4">
+                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-cyan-50 text-cyan-800 border border-cyan-200">
+                        {item.type}
+                      </span>
+                    </td>
                     <td className="py-4 text-slate-500 text-xs">{item.city}</td>
                     <td className="py-4 text-xs font-semibold text-slate-700">
                       {item.occupied} occ / {item.vacant} vac

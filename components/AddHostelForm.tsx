@@ -19,7 +19,7 @@ export default function AddHostelForm() {
 
     try {
       await createHostel(formData);
-      setStatusMessage({ type: "success", text: "Property successfully published to live search!" });
+      setStatusMessage({ type: "success", text: "Property successfully published to live search and maps!" });
       form.reset();
       setDailyVal(0);
       setBedsVal(1);
@@ -43,12 +43,10 @@ export default function AddHostelForm() {
       <div className="flex items-center justify-between border-b border-slate-100 pb-4">
         <div>
           <h2 className="text-xl font-black text-slate-900 tracking-tight">List Property</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Publish a verified hostel to students</p>
+          <p className="text-xs text-slate-500 mt-0.5">Publish a verified Hostel or PG to students</p>
         </div>
-        <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-600">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-          </svg>
+        <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-600 font-bold">
+          +
         </div>
       </div>
 
@@ -65,35 +63,36 @@ export default function AddHostelForm() {
         </div>
       )}
 
-      {/* Hostel Name */}
+      {/* Property Name */}
       <div>
         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-          Hostel Name
+          Property Name
         </label>
         <input
           name="name"
           required
           className="w-full px-3.5 py-2.5 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none"
-          placeholder="e.g. Royal Heights Hostel"
+          placeholder="e.g. Royal Heights Living"
         />
       </div>
 
-      {/* City & Gender Preference */}
+      {/* Property Type & Gender Preference */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            City
+            Category
           </label>
-          <input
-            name="city"
-            required
-            className="w-full px-3.5 py-2.5 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none"
-            placeholder="e.g. Pune"
-          />
+          <select
+            name="type"
+            className="w-full px-3 py-2.5 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none cursor-pointer"
+          >
+            <option value="HOSTEL">Hostel</option>
+            <option value="PG">PG (Paying Guest)</option>
+          </select>
         </div>
         <div>
           <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Gender
+            Gender Preference
           </label>
           <select
             name="gender"
@@ -106,18 +105,58 @@ export default function AddHostelForm() {
         </div>
       </div>
 
-      {/* Address */}
-      <div>
-        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-          Campus / Street Address
-        </label>
-        <textarea
-          name="address"
-          required
-          rows={2}
-          className="w-full px-3.5 py-2 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none resize-none"
-          placeholder="e.g. Near PICT Campus, Dhankawadi"
-        />
+      {/* City & Address */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-1">
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+            City
+          </label>
+          <input
+            name="city"
+            required
+            className="w-full px-3.5 py-2 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none"
+            placeholder="e.g. Pune"
+          />
+        </div>
+        <div className="col-span-2">
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+            Campus / Street Address
+          </label>
+          <input
+            name="address"
+            required
+            className="w-full px-3.5 py-2 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none"
+            placeholder="e.g. Near PICT Campus, Dhankawadi"
+          />
+        </div>
+      </div>
+
+      {/* Google Maps Coordinates (Optional) */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+            Latitude <span className="text-slate-400 lowercase">(maps)</span>
+          </label>
+          <input
+            name="latitude"
+            type="number"
+            step="any"
+            className="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
+            placeholder="e.g. 18.5204"
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+            Longitude <span className="text-slate-400 lowercase">(maps)</span>
+          </label>
+          <input
+            name="longitude"
+            type="number"
+            step="any"
+            className="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
+            placeholder="e.g. 73.8567"
+          />
+        </div>
       </div>
 
       {/* Capacity & Pricing Matrix */}
@@ -179,7 +218,7 @@ export default function AddHostelForm() {
         disabled={loading}
         className="w-full py-3 bg-[#020617] hover:bg-cyan-950 text-white font-black text-sm rounded-xl transition-all shadow-md shadow-slate-900/10 hover:shadow-cyan-900/20 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
       >
-        {loading ? "Publishing Property..." : "Publish Hostel Listing"}
+        {loading ? "Publishing Property..." : "Publish Accommodation"}
       </button>
     </form>
   );

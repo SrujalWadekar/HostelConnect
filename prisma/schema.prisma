@@ -13,6 +13,11 @@ enum Role {
   MANAGER
 }
 
+enum PropertyType {
+  HOSTEL
+  PG
+}
+
 enum GenderAllowed {
   MALE
   FEMALE
@@ -77,8 +82,11 @@ model VerificationToken {
 model Hostel {
   id            String           @id @default(cuid())
   name          String
+  type          PropertyType     @default(HOSTEL)
   city          String
   address       String
+  latitude      Float?
+  longitude     Float?
   dailyPrice    Int
   monthlyPrice  Int
   availableBeds Int
