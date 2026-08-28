@@ -33,11 +33,6 @@ export async function createHostel(formData: FormData) {
   const type = (formData.get("type") as PropertyType) || "HOSTEL";
   const gender = (formData.get("gender") as GenderAllowed) || "ANY";
 
-  const latRaw = formData.get("latitude") as string;
-  const lngRaw = formData.get("longitude") as string;
-  const latitude = latRaw && !isNaN(parseFloat(latRaw)) ? parseFloat(latRaw) : null;
-  const longitude = lngRaw && !isNaN(parseFloat(lngRaw)) ? parseFloat(lngRaw) : null;
-
   if (!name || !city || !address || isNaN(dailyPrice) || isNaN(monthlyPrice) || isNaN(availableBeds)) {
     throw new Error("Please provide all required fields with valid numbers.");
   }
@@ -48,8 +43,6 @@ export async function createHostel(formData: FormData) {
       type,
       city,
       address,
-      latitude,
-      longitude,
       dailyPrice,
       monthlyPrice,
       availableBeds,

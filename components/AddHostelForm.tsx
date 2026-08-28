@@ -6,6 +6,7 @@ import { useState } from "react";
 export default function AddHostelForm() {
   const [loading, setLoading] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [step, setStep] = useState<number>(1);
   const [dailyVal, setDailyVal] = useState<number>(0);
   const [bedsVal, setBedsVal] = useState<number>(1);
 
@@ -19,8 +20,9 @@ export default function AddHostelForm() {
 
     try {
       await createHostel(formData);
-      setStatusMessage({ type: "success", text: "Property successfully published to live search and maps!" });
+      setStatusMessage({ type: "success", text: "Property successfully published!" });
       form.reset();
+      setStep(1);
       setDailyVal(0);
       setBedsVal(1);
     } catch (err: unknown) {
@@ -34,25 +36,30 @@ export default function AddHostelForm() {
     }
   }
 
+  const nextStep = () => setStep((prev) => Math.min(prev + 1, 3));
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 bg-white p-6 md:p-7 rounded-[2rem] border border-cyan-900/10 shadow-xl shadow-cyan-950/5 relative overflow-hidden"
+      className="space-y-6 bg-white p-6 md:p-8 rounded-[2rem] border border-cyan-900/10 shadow-xl shadow-cyan-950/5 relative overflow-hidden"
     >
-      {/* Top Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+      {/* Header & Progress indicator */}
+      <div className="flex items-center justify-between border-b border-slate-100 pb-5">
         <div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">List Property</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Publish a verified Hostel or PG to students</p>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">List Property</h2>
+          <p className="text-xs font-semibold text-slate-500 mt-1">Step {step} of 3</p>
         </div>
-        <div className="w-9 h-9 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-600 font-bold">
-          +
+        <div className="flex gap-1">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={`h-2 rounded-full transition-all duration-300 ${step >= i ? "w-6 bg-cyan-500" : "w-2 bg-slate-200"}`}></div>
+          ))}
         </div>
       </div>
 
       {statusMessage && (
         <div
-          className={`p-3.5 text-xs font-bold rounded-xl border flex items-center gap-2 ${
+          className={`p-4 text-sm font-bold rounded-xl border flex items-center gap-2 ${
             statusMessage.type === "success"
               ? "bg-emerald-50 text-emerald-800 border-emerald-200"
               : "bg-rose-50 text-rose-800 border-rose-200"
@@ -63,163 +70,143 @@ export default function AddHostelForm() {
         </div>
       )}
 
-      {/* Property Name */}
-      <div>
-        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-          Property Name
-        </label>
-        <input
-          name="name"
-          required
-          className="w-full px-3.5 py-2.5 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none"
-          placeholder="e.g. Royal Heights Living"
-        />
-      </div>
-
-      {/* Property Type & Gender Preference */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* STEP 1: Basic Details */}
+      <div className={step === 1 ? "space-y-4 block animate-in fade-in slide-in-from-right-4" : "hidden"}>
         <div>
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Category
-          </label>
-          <select
-            name="type"
-            className="w-full px-3 py-2.5 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none cursor-pointer"
-          >
-            <option value="HOSTEL">Hostel</option>
-            <option value="PG">PG (Paying Guest)</option>
-          </select>
+          <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Property Name</label>
+          <input
+            name="name"
+            required={step === 1}
+            className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
+            placeholder="e.g. Royal Heights Living"
+          />
         </div>
-        <div>
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Gender Preference
-          </label>
-          <select
-            name="gender"
-            className="w-full px-3 py-2.5 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none cursor-pointer"
-          >
-            <option value="ANY">Co-ed / Any</option>
-            <option value="MALE">Male Only</option>
-            <option value="FEMALE">Female Only</option>
-          </select>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Category</label>
+            <select
+              name="type"
+              className="w-full px-3 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none cursor-pointer"
+            >
+              <option value="HOSTEL">Hostel</option>
+              <option value="PG">PG (Paying Guest)</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Gender</label>
+            <select
+              name="gender"
+              className="w-full px-3 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none cursor-pointer"
+            >
+              <option value="ANY">Co-ed / Any</option>
+              <option value="MALE">Male Only</option>
+              <option value="FEMALE">Female Only</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* City & Address */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="col-span-1">
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            City
-          </label>
+      {/* STEP 2: Location */}
+      <div className={step === 2 ? "space-y-4 block animate-in fade-in slide-in-from-right-4" : "hidden"}>
+        <div>
+          <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">City</label>
           <input
             name="city"
-            required
-            className="w-full px-3.5 py-2 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none"
+            required={step === 2}
+            className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
             placeholder="e.g. Pune"
           />
         </div>
-        <div className="col-span-2">
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Campus / Street Address
-          </label>
-          <input
+        <div>
+          <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Campus / Street Address</label>
+          <textarea
             name="address"
-            required
-            className="w-full px-3.5 py-2 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none"
+            required={step === 2}
+            rows={3}
+            className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none resize-none"
             placeholder="e.g. Near PICT Campus, Dhankawadi"
           />
         </div>
       </div>
 
-      {/* Google Maps Coordinates (Optional) */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Latitude <span className="text-slate-400 lowercase">(maps)</span>
-          </label>
-          <input
-            name="latitude"
-            type="number"
-            step="any"
-            className="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
-            placeholder="e.g. 18.5204"
-          />
+      {/* STEP 3: Pricing & Capacity */}
+      <div className={step === 3 ? "space-y-4 block animate-in fade-in slide-in-from-right-4" : "hidden"}>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Daily (₹)</label>
+            <input
+              name="dailyPrice"
+              type="number"
+              required={step === 3}
+              min="0"
+              onChange={(e) => setDailyVal(Number(e.target.value) || 0)}
+              className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
+              placeholder="500"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Monthly (₹)</label>
+            <input
+              name="monthlyPrice"
+              type="number"
+              required={step === 3}
+              min="0"
+              className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
+              placeholder="8000"
+            />
+          </div>
         </div>
         <div>
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Longitude <span className="text-slate-400 lowercase">(maps)</span>
-          </label>
-          <input
-            name="longitude"
-            type="number"
-            step="any"
-            className="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
-            placeholder="e.g. 73.8567"
-          />
-        </div>
-      </div>
-
-      {/* Capacity & Pricing Matrix */}
-      <div className="grid grid-cols-3 gap-2.5">
-        <div>
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Daily (₹)
-          </label>
-          <input
-            name="dailyPrice"
-            type="number"
-            required
-            min="0"
-            onChange={(e) => setDailyVal(Number(e.target.value) || 0)}
-            className="w-full px-3 py-2 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
-            placeholder="500"
-          />
-        </div>
-        <div>
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Monthly (₹)
-          </label>
-          <input
-            name="monthlyPrice"
-            type="number"
-            required
-            min="0"
-            className="w-full px-3 py-2 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
-            placeholder="8000"
-          />
-        </div>
-        <div>
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            Total Beds
-          </label>
+          <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Beds</label>
           <input
             name="availableBeds"
             type="number"
-            required
+            required={step === 3}
             min="1"
             onChange={(e) => setBedsVal(Number(e.target.value) || 1)}
-            className="w-full px-3 py-2 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
+            className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
             placeholder="10"
           />
         </div>
+
+        {dailyVal > 0 && (
+          <div className="p-4 mt-2 bg-[#ecfeff] border border-cyan-200/60 rounded-xl flex items-center justify-between text-sm text-cyan-900 font-bold">
+            <span>Est. Max Daily Yield:</span>
+            <span>₹{(dailyVal * bedsVal).toLocaleString()} / day</span>
+          </div>
+        )}
       </div>
 
-      {/* Live Estimator Strip */}
-      {dailyVal > 0 && (
-        <div className="p-3 bg-[#ecfeff] border border-cyan-200/60 rounded-xl flex items-center justify-between text-xs text-cyan-900 font-bold">
-          <span>Est. Max Daily Yield:</span>
-          <span>₹{(dailyVal * bedsVal).toLocaleString()} / day</span>
-        </div>
-      )}
-
-      {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full py-3 bg-[#020617] hover:bg-cyan-950 text-white font-black text-sm rounded-xl transition-all shadow-md shadow-slate-900/10 hover:shadow-cyan-900/20 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-      >
-        {loading ? "Publishing Property..." : "Publish Accommodation"}
-      </button>
+      {/* Navigation Footer */}
+      <div className="flex gap-3 pt-2">
+        {step > 1 && (
+          <button
+            type="button"
+            onClick={prevStep}
+            className="w-1/3 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm rounded-xl transition-all active:scale-[0.98]"
+          >
+            Back
+          </button>
+        )}
+        
+        {step < 3 ? (
+          <button
+            type="button"
+            onClick={nextStep}
+            className="flex-1 py-3.5 bg-[#020617] hover:bg-cyan-950 text-white font-black text-sm rounded-xl transition-all shadow-md active:scale-[0.98]"
+          >
+            Next Step
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 py-3.5 bg-gradient-to-r from-cyan-600 to-emerald-500 hover:from-cyan-500 hover:to-emerald-400 text-white font-black text-sm rounded-xl transition-all shadow-lg shadow-cyan-900/20 active:scale-[0.98] disabled:opacity-50"
+          >
+            {loading ? "Publishing..." : "Publish Accommodation"}
+          </button>
+        )}
+      </div>
     </form>
   );
 }
