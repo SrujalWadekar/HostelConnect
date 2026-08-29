@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
-import ClientDashboard from "./ClientDashboard"; // Ensure this matches exactly
+import ClientDashboard from "./ClientDashboard"; 
 
 export default async function StudentDashboardPage() {
   const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export default async function StudentDashboardPage() {
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: {
-      bookings: {
+      bookingRequests: { // <-- Fixed: Changed from bookings to bookingRequests
         include: { hostel: true },
         orderBy: { createdAt: "desc" },
       },
@@ -35,14 +35,13 @@ export default async function StudentDashboardPage() {
       monthlyPrice: true,
       availableBeds: true,
       gender: true,
-      latitude: true,
-      longitude: true,
+      // Removed latitude, longitude, and createdAt from this query 
+      // because they are not defined in your schema.prisma file.
     },
-    orderBy: { createdAt: "desc" },
   });
 
   // 3. Force data serialization to safely pass Prisma objects to a Client Component
-  const safeBookings = JSON.parse(JSON.stringify(user?.bookings || []));
+  const safeBookings = JSON.parse(JSON.stringify(user?.bookingRequests || [])); // <-- Fixed here as well
   const safeProperties = JSON.parse(JSON.stringify(availableProperties));
 
   return (

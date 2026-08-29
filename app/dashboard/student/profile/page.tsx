@@ -14,7 +14,7 @@ export default async function StudentProfilePage() {
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: {
-      bookings: {
+      bookingRequests: { // <-- Fixed relation name
         include: {
           hostel: true,
         },
@@ -33,15 +33,16 @@ export default async function StudentProfilePage() {
     redirect("/dashboard/manager/profile");
   }
 
-  const confirmedBookings = user.bookings.filter(
+  // Fixed array references below
+  const confirmedBookings = user.bookingRequests.filter(
     (booking) => booking.status === "CONFIRMED"
   );
 
-  const pendingBookings = user.bookings.filter(
+  const pendingBookings = user.bookingRequests.filter(
     (booking) => booking.status === "PENDING"
   );
 
-  const rejectedBookings = user.bookings.filter(
+  const rejectedBookings = user.bookingRequests.filter(
     (booking) => booking.status === "REJECTED"
   );
 
@@ -197,7 +198,7 @@ export default async function StudentProfilePage() {
           </Link>
         </div>
 
-        {user.bookings.length === 0 ? (
+        {user.bookingRequests.length === 0 ? ( // <-- Fixed length check
           <div className="rounded-2xl border border-slate-100 bg-slate-50 py-12 text-center">
             <span className="text-4xl">🏠</span>
 
@@ -230,7 +231,7 @@ export default async function StudentProfilePage() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {user.bookings.map((booking) => (
+                {user.bookingRequests.map((booking) => ( // <-- Fixed map function
                   <tr
                     key={booking.id}
                     className="transition hover:bg-cyan-50/50"
