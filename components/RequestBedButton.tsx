@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { createBookingRequest } from "@/app/actions/booking";
 
-export default function RequestBedButton({ hostelId, stayType }: { hostelId: string, stayType: string }) {
+export default function RequestBedButton({
+  hostelId,
+  stayType = "MONTHLY",
+}: {
+  hostelId: string;
+  stayType?: string;
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);

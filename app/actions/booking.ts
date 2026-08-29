@@ -7,8 +7,8 @@ import { revalidatePath } from "next/cache";
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "APPROVED" | "REJECTED";
 
-// Action for Students to Request a Bed
-export async function createBookingRequest(hostelId: string) {
+// Action for Students to Request a Bed (accepts optional stayType)
+export async function createBookingRequest(hostelId: string, stayType?: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) throw new Error("Unauthorized");
 
