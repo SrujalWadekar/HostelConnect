@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth"; // <-- Must be from @/lib/auth
 import { redirect } from "next/navigation";
 import Link from "next/link";
-
 export default async function StudentProfilePage() {
   const session = await getServerSession(authOptions);
 

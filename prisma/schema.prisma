@@ -8,7 +8,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// Enums based on your TypeScript types
+// 1. Enums
 enum PropertyType {
   HOSTEL
   PG
@@ -20,61 +20,75 @@ enum GenderAllowed {
   FEMALE
 }
 
-// Add the Role enum here
 enum Role {
   STUDENT
   MANAGER
 }
 
-// 1. The User Model
+// 2. The User Model
 model User {
   id              String           @id @default(cuid())
   name            String?
   email           String?          @unique
   emailVerified   DateTime?
   image           String?
-  
-  // Changed from String to Role Enum
-  role            Role             @default(STUDENT) 
+  role            Role             @default(STUDENT)
   createdAt       DateTime         @default(now())
-  
+
   // Relations
-  hostels         Hostel[]         
-  bookingRequests BookingRequest[] 
+  hostels         Hostel[]
+  bookingRequests BookingRequest[]
+  reviews         Review[]
 }
 
-// 2. The Hostel Model
+// 3. The Hostel Model
 model Hostel {
-  id            String           @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String
-  type          PropertyType     @default(HOSTEL)
-  gender        GenderAllowed    @default(ANY)
+  type          PropertyType   @default(HOSTEL)
+  gender        GenderAllowed  @default(ANY)
   city          String
   address       String
   dailyPrice    Int
   monthlyPrice  Int
   availableBeds Int
-  
-  // Relation to the User (Manager)
+
+  // Relation to Manager
   managerId     String
-  manager       User             @relation(fields: [managerId], references: [id])
-  
-  // Relation to Bookings
+  manager       User           @relation(fields: [managerId], references: [id])
+
+  // Relations
   bookingRequests BookingRequest[]
+  reviews         Review[]
 }
 
-// 3. The Booking Request Model
+// 4. The Booking Request Model
 model BookingRequest {
   id        String   @id @default(cuid())
   status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  
-  // Relation to the User (Student)
+
+  // Relation to Student
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  
-  // Relation to the Hostel
+
+  // Relation to Hostel
   hostelId  String
   hostel    Hostel   @relation(fields: [hostelId], references: [id])
-  
+
+  createdAt DateTime @default(now())
+}
+
+// 5. The Review Model
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1 to 5
+  comment   String?
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  hostelId  String
+  hostel    Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
 }

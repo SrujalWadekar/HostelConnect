@@ -2,12 +2,12 @@
 
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "APPROVED" | "REJECTED";
 
-// Action for Students to Request a Bed (accepts optional stayType)
+// Action for Students to Request a Bed
 export async function createBookingRequest(hostelId: string, stayType?: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) throw new Error("Unauthorized");

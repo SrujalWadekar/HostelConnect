@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth"; // ✅
 import { revalidatePath } from "next/cache";
 
 type GenderAllowed = "ANY" | "MALE" | "FEMALE";
@@ -93,4 +93,27 @@ export async function updateHostelBeds(hostelId: string, newBedCount: number) {
   revalidatePath("/dashboard/student");
 
   return { success: true, availableBeds: updated.availableBeds };
+}
+
+export async function switchUserRole() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) throw new Error("User not found");
+
+  const newRole = user.role === "MANAGER" ? "STUDENT" : "MANAGER";
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { role: newRole },
+  });
+
+  revalidatePath("/dashboard/manager");
+  revalidatePath("/dashboard/student");
+  revalidatePath("/", "layout");
+
+  return { success: true, newRole };
 }
