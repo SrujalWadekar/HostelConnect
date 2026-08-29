@@ -56,3 +56,21 @@ export async function createHostel(formData: FormData) {
 
   return { success: true, hostelId: newHostel.id };
 }
+
+export async function getAllHostels() {
+  try {
+    return await prisma.hostel.findMany({
+      include: {
+        manager: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch hostels:", error);
+    return [];
+  }
+}
