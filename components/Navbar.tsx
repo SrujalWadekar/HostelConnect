@@ -15,15 +15,11 @@ export default function Navbar() {
       }
     | undefined;
 
-  const isManager = user?.role === "MANAGER";
+  const isManager = user?.role?.toUpperCase() === "MANAGER";
 
   const profilePath = isManager
     ? "/dashboard/manager/profile"
     : "/dashboard/student/profile";
-
-  const historyPath = isManager
-    ? "/dashboard/manager/history"
-    : "/dashboard/student/history";
 
   const dashboardPath = isManager
     ? "/dashboard/manager"
@@ -113,43 +109,27 @@ export default function Navbar() {
 
                   <div className="space-y-1">
                     <Link
-                      href={profilePath}
-                      className="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 transition-all hover:bg-cyan-500/15 hover:text-white"
-                    >
-                      <span className="text-base">👤</span>
-
-                      <div>
-                        <p className="leading-tight">My Profile</p>
-                        <p className="text-[10px] font-normal text-slate-400">
-                          Account details
-                        </p>
-                      </div>
-                    </Link>
-
-                    <Link
-                      href={historyPath}
-                      className="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 transition-all hover:bg-cyan-500/15 hover:text-white"
-                    >
-                      <span className="text-base">📜</span>
-
-                      <div>
-                        <p className="leading-tight">Recent History</p>
-                        <p className="text-[10px] font-normal text-slate-400">
-                          Past stays & requests
-                        </p>
-                      </div>
-                    </Link>
-
-                    <Link
                       href={dashboardPath}
                       className="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 transition-all hover:bg-cyan-500/15 hover:text-white"
                     >
                       <span className="text-base">🎛️</span>
-
                       <div>
                         <p className="leading-tight">Dashboard</p>
                         <p className="text-[10px] font-normal text-slate-400">
                           Main workspace
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href={profilePath}
+                      className="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 transition-all hover:bg-cyan-500/15 hover:text-white"
+                    >
+                      <span className="text-base">👤</span>
+                      <div>
+                        <p className="leading-tight">My Profile</p>
+                        <p className="text-[10px] font-normal text-slate-400">
+                          {isManager ? "Portfolio & Earnings" : "Account details"}
                         </p>
                       </div>
                     </Link>

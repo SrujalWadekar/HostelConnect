@@ -74,3 +74,23 @@ export async function getAllHostels() {
     return [];
   }
 }
+// Add this at the bottom of app/actions/hostel.ts
+
+export async function updateHostelBeds(hostelId: string, newBedCount: number) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  if (newBedCount < 0) {
+    throw new Error("Bed count cannot be negative.");
+  }
+
+  const updated = await prisma.hostel.update({
+    where: { id: hostelId },
+    data: { availableBeds: Math.round(newBedCount) },
+  });
+
+  revalidatePath("/dashboard/manager");
+  revalidatePath("/dashboard/student");
+
+  return { success: true, availableBeds: updated.availableBeds };
+}
