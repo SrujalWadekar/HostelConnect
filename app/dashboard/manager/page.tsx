@@ -13,10 +13,9 @@ interface StudentProfile {
 
 interface BookingItem {
   id: string;
-  stayType: string;
-  status: "PENDING" | "CONFIRMED" | "REJECTED";
+  status: string;
   createdAt: Date;
-  student: StudentProfile | null;
+  user: StudentProfile | null;
 }
 
 interface HostelItem {
@@ -25,16 +24,18 @@ interface HostelItem {
   type: "HOSTEL" | "PG";
   city: string;
   address: string;
-  latitude: number | null;
-  longitude: number | null;
   dailyPrice: number;
   monthlyPrice: number;
   availableBeds: number;
   gender: "ANY" | "MALE" | "FEMALE";
-  bookings: BookingItem[];
+  bookingRequests: BookingItem[];
 }
 
-interface EnrichedBooking extends BookingItem {
+interface EnrichedBooking {
+  id: string;
+  status: string;
+  createdAt: Date;
+  student: StudentProfile | null;
   hostelName: string;
   hostelPrice: number;
 }
@@ -67,12 +68,11 @@ export default async function ManagerDashboard() {
     include: {
       hostels: {
         include: {
-          bookings: {
-            include: { student: true },
+          bookingRequests: {
+            include: { user: true },
             orderBy: { createdAt: "desc" },
           },
         },
-        orderBy: { createdAt: "desc" },
       },
     },
   });
@@ -80,20 +80,23 @@ export default async function ManagerDashboard() {
   const hostels: HostelItem[] = (user?.hostels || []) as unknown as HostelItem[];
 
   const allBookings: EnrichedBooking[] = hostels.flatMap((h: HostelItem) =>
-    h.bookings.map((b: BookingItem): EnrichedBooking => ({
-      ...b,
+    (h.bookingRequests || []).map((b: BookingItem): EnrichedBooking => ({
+      id: b.id,
+      status: b.status,
+      createdAt: b.createdAt,
+      student: b.user,
       hostelName: h.name,
       hostelPrice: h.monthlyPrice,
     }))
   );
 
   const pendingBookings = allBookings.filter((b: EnrichedBooking) => b.status === "PENDING");
-  const confirmedBookings = allBookings.filter((b: EnrichedBooking) => b.status === "CONFIRMED");
+  const confirmedBookings = allBookings.filter((b: EnrichedBooking) => b.status === "CONFIRMED" || b.status === "APPROVED");
 
   // Global Portfolio Analytics
   const activeResidents = confirmedBookings.length;
   const totalCapacity = hostels.reduce((acc: number, h: HostelItem) => {
-    const occupiedInHostel = h.bookings.filter((b: BookingItem) => b.status === "CONFIRMED").length;
+    const occupiedInHostel = (h.bookingRequests || []).filter((b: BookingItem) => b.status === "CONFIRMED" || b.status === "APPROVED").length;
     return acc + h.availableBeds + occupiedInHostel;
   }, 0);
 
@@ -101,7 +104,7 @@ export default async function ManagerDashboard() {
 
   const estimatedRevenue = hostels.reduce(
     (acc: number, h: HostelItem) =>
-      acc + h.monthlyPrice * h.bookings.filter((b: BookingItem) => b.status === "CONFIRMED").length,
+      acc + h.monthlyPrice * (h.bookingRequests || []).filter((b: BookingItem) => b.status === "CONFIRMED" || b.status === "APPROVED").length,
     0
   );
 
@@ -140,7 +143,7 @@ export default async function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Gamified Insight Banner */}
+      {/* Insight Banner */}
       {pendingBookings.length > 0 && (
         <div className="bg-gradient-to-r from-cyan-600 to-emerald-600 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-white shadow-lg shadow-cyan-900/10 hover:-translate-y-1 transition-transform duration-300">
           <div className="flex items-center gap-4">
@@ -241,7 +244,7 @@ export default async function ManagerDashboard() {
                   </svg>
                 </div>
                 <p className="text-slate-900 font-bold text-lg">Inbox Zero!</p>
-                <p className="text-sm text-slate-500 mt-1 max-w-xs">All student requests have been processed. You're doing great!</p>
+                <p className="text-sm text-slate-500 mt-1 max-w-xs">All student requests have been processed.</p>
               </div>
             ) : (
               <div className="grid gap-3">
@@ -251,9 +254,6 @@ export default async function ManagerDashboard() {
                       <div className="flex items-center gap-2">
                         <span className="font-black text-slate-900">
                           {booking.student?.name || "Student User"}
-                        </span>
-                        <span className="text-[10px] font-bold text-cyan-800 bg-[#ecfeff] px-2.5 py-1 rounded-md tracking-wider uppercase">
-                          {booking.stayType} Plan
                         </span>
                       </div>
 
@@ -299,13 +299,13 @@ export default async function ManagerDashboard() {
                 <span className="text-6xl mb-4">🏢</span>
                 <p className="text-slate-900 font-bold text-lg">Build Your Portfolio</p>
                 <p className="text-sm text-slate-500 max-w-sm mt-2 leading-relaxed">
-                  You haven't listed any properties yet. Use the form to publish your first hostel or PG and attract student bookings.
+                  You haven't listed any properties yet. Use the form to publish your first hostel or PG.
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {hostels.map((hostel: HostelItem) => {
-                  const occupied = hostel.bookings.filter((b: BookingItem) => b.status === "CONFIRMED").length;
+                  const occupied = (hostel.bookingRequests || []).filter((b: BookingItem) => b.status === "CONFIRMED" || b.status === "APPROVED").length;
                   const totalBeds = hostel.availableBeds + occupied;
                   const occupancyPercent = totalBeds > 0 ? Math.round((occupied / totalBeds) * 100) : 0;
                   const isFull = hostel.availableBeds === 0;

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { updateBookingStatus } from "@/app/actions/booking";
-import { BookingStatus } from "@prisma/client";
+
+export type BookingStatus = "CONFIRMED" | "APPROVED" | "REJECTED" | "PENDING";
 
 interface BookingActionButtonsProps {
   bookingId: string;
@@ -17,7 +18,7 @@ export default function BookingActionButtons({ bookingId }: BookingActionButtons
     setErrorMsg(null);
 
     try {
-      await updateBookingStatus(bookingId, status as BookingStatus);
+      await updateBookingStatus(bookingId, status);
     } catch (error: unknown) {
       console.error("Failed to update booking status:", error);
       setErrorMsg("Failed to update. Please try again.");

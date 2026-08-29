@@ -12,7 +12,7 @@ interface HostelProfileData {
   monthlyPrice: number;
   availableBeds: number;
   _count: {
-    bookings: number;
+    bookingRequests: number;
   };
 }
 
@@ -57,7 +57,7 @@ export default async function ManagerProfilePage() {
       availableBeds: true,
       _count: {
         select: {
-          bookings: {
+          bookingRequests: {
             where: { status: "CONFIRMED" },
           },
         },
@@ -75,7 +75,7 @@ export default async function ManagerProfilePage() {
 
   const propertyMetrics: PropertyMetric[] = hostels.map(
     (hostel: HostelProfileData): PropertyMetric => {
-      const confirmedCount = hostel._count.bookings;
+      const confirmedCount = hostel._count.bookingRequests;
       const capacity = hostel.availableBeds + confirmedCount;
       const vacancy = hostel.availableBeds;
 

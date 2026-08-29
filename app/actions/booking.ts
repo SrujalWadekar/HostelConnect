@@ -5,22 +5,22 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
 
-type BookingStatus = "PENDING" | "CONFIRMED" | "REJECTED";
+export type BookingStatus = "PENDING" | "CONFIRMED" | "APPROVED" | "REJECTED";
 
 // Action for Students to Request a Bed
-export async function createBookingRequest(hostelId: string, stayType: string = "MONTHLY") {
+export async function createBookingRequest(hostelId: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) throw new Error("Unauthorized");
 
   const user = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!user) throw new Error("User profile not found");
 
-  // Prevent duplicate spam requests for the same property
+  // Prevent duplicate requests for the same property
   const existingRequest = await prisma.bookingRequest.findFirst({
     where: {
-      studentId: user.id,
+      userId: user.id,
       hostelId: hostelId,
-      status: { in: ["PENDING", "CONFIRMED"] },
+      status: { in: ["PENDING", "CONFIRMED", "APPROVED"] },
     },
   });
 
@@ -30,9 +30,8 @@ export async function createBookingRequest(hostelId: string, stayType: string = 
 
   await prisma.bookingRequest.create({
     data: {
-      stayType,
       status: "PENDING",
-      studentId: user.id,
+      userId: user.id,
       hostelId: hostelId,
     },
   });
