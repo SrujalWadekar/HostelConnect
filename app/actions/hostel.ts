@@ -2,11 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // ✅
+import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-
-type GenderAllowed = "ANY" | "MALE" | "FEMALE";
-type PropertyType = "HOSTEL" | "PG";
+import { PropertyType, GenderAllowed } from "@prisma/client";
 
 export async function createHostel(formData: FormData) {
   const session = await getServerSession(authOptions);
@@ -74,7 +72,6 @@ export async function getAllHostels() {
     return [];
   }
 }
-// Add this at the bottom of app/actions/hostel.ts
 
 export async function updateHostelBeds(hostelId: string, newBedCount: number) {
   const session = await getServerSession(authOptions);
@@ -90,9 +87,88 @@ export async function updateHostelBeds(hostelId: string, newBedCount: number) {
   });
 
   revalidatePath("/dashboard/manager");
+  revalidatePath("/dashboard/manager/profile");
   revalidatePath("/dashboard/student");
 
   return { success: true, availableBeds: updated.availableBeds };
+}
+
+export async function updateHostelDetails(
+  hostelId: string,
+  data: {
+    name: string;
+    type: PropertyType;
+    gender: GenderAllowed;
+    city: string;
+    address: string;
+    dailyPrice: number;
+    monthlyPrice: number;
+    availableBeds: number;
+  }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) throw new Error("User not found");
+
+  const hostel = await prisma.hostel.findUnique({
+    where: { id: hostelId },
+  });
+
+  if (!hostel || hostel.managerId !== user.id) {
+    throw new Error("Property not found or unauthorized.");
+  }
+
+  await prisma.hostel.update({
+    where: { id: hostelId },
+    data: {
+      name: data.name,
+      type: data.type,
+      gender: data.gender,
+      city: data.city,
+      address: data.address,
+      dailyPrice: Math.round(Number(data.dailyPrice)),
+      monthlyPrice: Math.round(Number(data.monthlyPrice)),
+      availableBeds: Math.round(Number(data.availableBeds)),
+    },
+  });
+
+  revalidatePath("/dashboard/manager");
+  revalidatePath("/dashboard/manager/profile");
+  revalidatePath("/dashboard/student");
+
+  return { success: true };
+}
+
+export async function addReview(hostelId: string, rating: number, comment?: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) throw new Error("Unauthorized: Please sign in to review.");
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) throw new Error("User profile not found.");
+
+  if (rating < 1 || rating > 5) {
+    throw new Error("Rating must be between 1 and 5 stars.");
+  } 
+
+  await prisma.review.create({
+    data: {
+      rating,
+      comment: comment || "",
+      userId: user.id,
+      hostelId: hostelId,
+    },
+  });
+
+  revalidatePath("/dashboard/student");
+  revalidatePath("/dashboard/manager");
+
+  return { success: true };
 }
 
 export async function switchUserRole() {
