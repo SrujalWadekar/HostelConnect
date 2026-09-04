@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"; // ✅
 import { redirect } from "next/navigation";
 import AddHostelForm from "@/components/AddHostelForm";
 import BookingActionButtons from "@/components/BookingActionButtons";
-
+import DeleteHostelButton from "@/components/DeleteHostelButton";
 // Strongly-typed interfaces to eliminate TS build errors
 interface StudentProfile {
   name: string | null;
@@ -359,13 +359,12 @@ export default async function ManagerDashboard() {
                           </div>
                           <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all duration-1000 ${
-                                isFull
+                              className={`h-full rounded-full transition-all duration-1000 ${isFull
                                   ? "bg-rose-500"
                                   : isHighDemand
-                                  ? "bg-gradient-to-r from-orange-400 to-rose-500"
-                                  : "bg-gradient-to-r from-cyan-400 to-emerald-400"
-                              }`}
+                                    ? "bg-gradient-to-r from-orange-400 to-rose-500"
+                                    : "bg-gradient-to-r from-cyan-400 to-emerald-400"
+                                }`}
                               style={{ width: `${occupancyPercent}%` }}
                             ></div>
                           </div>
@@ -379,6 +378,10 @@ export default async function ManagerDashboard() {
                           <span className="text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded">
                             {formatINR(hostel.dailyPrice)} / day
                           </span>
+                        </div>
+
+                        <div className="flex justify-end pt-3">
+                          <DeleteHostelButton hostelId={hostel.id} hostelName={hostel.name} />
                         </div>
                       </div>
                     </div>

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { PropertyType, GenderAllowed } from "@prisma/client";
+import { PropertyType, GenderAllowed, Prisma } from "@prisma/client";
 
 export async function createHostel(formData: FormData) {
   const session = await getServerSession(authOptions);
@@ -55,9 +55,41 @@ export async function createHostel(formData: FormData) {
   return { success: true, hostelId: newHostel.id };
 }
 
-export async function getAllHostels() {
+// Filters students can search/browse by
+export type HostelFilters = {
+  city?: string;
+  type?: PropertyType;
+  gender?: GenderAllowed;
+  minPrice?: number;
+  maxPrice?: number;
+  onlyAvailable?: boolean;
+};
+
+export async function getAllHostels(filters?: HostelFilters) {
   try {
+    const where: Prisma.HostelWhereInput = {};
+
+    if (filters?.city) {
+      where.city = { contains: filters.city, mode: "insensitive" };
+    }
+    if (filters?.type) {
+      where.type = filters.type;
+    }
+    if (filters?.gender) {
+      where.gender = filters.gender;
+    }
+    if (filters?.minPrice !== undefined || filters?.maxPrice !== undefined) {
+      where.monthlyPrice = {
+        ...(filters.minPrice !== undefined ? { gte: filters.minPrice } : {}),
+        ...(filters.maxPrice !== undefined ? { lte: filters.maxPrice } : {}),
+      };
+    }
+    if (filters?.onlyAvailable) {
+      where.availableBeds = { gt: 0 };
+    }
+
     return await prisma.hostel.findMany({
+      where,
       include: {
         manager: {
           select: {
@@ -66,6 +98,7 @@ export async function getAllHostels() {
           },
         },
       },
+      orderBy: { name: "asc" },
     });
   } catch (error) {
     console.error("Failed to fetch hostels:", error);
@@ -135,6 +168,39 @@ export async function updateHostelDetails(
       availableBeds: Math.round(Number(data.availableBeds)),
     },
   });
+
+  revalidatePath("/dashboard/manager");
+  revalidatePath("/dashboard/manager/profile");
+  revalidatePath("/dashboard/student");
+
+  return { success: true };
+}
+
+// Delete a hostel listing (manager-only, and only their own listing)
+export async function deleteHostel(hostelId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) throw new Error("User not found");
+
+  const hostel = await prisma.hostel.findUnique({
+    where: { id: hostelId },
+  });
+
+  if (!hostel || hostel.managerId !== user.id) {
+    throw new Error("Property not found or unauthorized.");
+  }
+
+  // BookingRequest and Review both reference Hostel without onDelete: Cascade,
+  // so related rows must be removed first or the delete will fail on the FK constraint.
+  await prisma.$transaction([
+    prisma.bookingRequest.deleteMany({ where: { hostelId } }),
+    prisma.review.deleteMany({ where: { hostelId } }),
+    prisma.hostel.delete({ where: { id: hostelId } }),
+  ]);
 
   revalidatePath("/dashboard/manager");
   revalidatePath("/dashboard/manager/profile");
