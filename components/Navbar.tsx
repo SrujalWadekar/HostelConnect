@@ -59,12 +59,12 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-cyan-900/30 bg-[#020617]/90 shadow-2xl shadow-cyan-900/10 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between">
-          {/* Logo */}
-          <Link href={dashboardPath} className="group flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/20 transition-all duration-300 group-hover:scale-105">
+        <div className="flex h-20 items-center justify-between gap-3">
+          {/* Logo — always goes to the main/home page */}
+          <Link href="/" className="group flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/20 transition-all duration-300 group-hover:scale-105">
               <svg
-                className="h-5 w-5 text-white"
+                className="h-4 w-4 sm:h-5 sm:w-5 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -78,13 +78,13 @@ export default function Navbar() {
               </svg>
             </div>
 
-            <div className="text-xl font-black tracking-tight text-white transition-colors group-hover:text-cyan-50">
+            <div className="text-lg sm:text-xl font-black tracking-tight text-white transition-colors group-hover:text-cyan-50">
               Hostel<span className="text-cyan-400">Connect</span>
             </div>
           </Link>
 
           {/* User Menu */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {status === "loading" ? (
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-500/30 border-t-cyan-500" />
             ) : session ? (
@@ -93,7 +93,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setDropdownOpen((prev) => !prev)}
-                  className="flex cursor-pointer items-center gap-3 rounded-2xl border border-cyan-500/15 bg-white/[0.04] p-1.5 pl-3.5 pr-2 transition-all hover:border-cyan-500/40 hover:bg-white/[0.08]"
+                  className="flex cursor-pointer items-center gap-2 sm:gap-3 rounded-2xl border border-cyan-500/15 bg-white/[0.04] p-1.5 pl-2 sm:pl-3.5 pr-2 transition-all hover:border-cyan-500/40 hover:bg-white/[0.08]"
                 >
                   <div className="hidden flex-col items-end sm:flex">
                     <span className="text-sm font-bold tracking-wide text-white">
@@ -109,10 +109,10 @@ export default function Navbar() {
                     <img
                       src={user.image}
                       alt="Profile"
-                      className="h-10 w-10 rounded-full object-cover ring-2 ring-cyan-500/50 shadow-lg shadow-cyan-900/40"
+                      className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover ring-2 ring-cyan-500/50 shadow-lg shadow-cyan-900/40"
                     />
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-cyan-500 to-emerald-400 p-[2px] shadow-lg shadow-cyan-900/40">
+                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gradient-to-tr from-cyan-500 to-emerald-400 p-[2px] shadow-lg shadow-cyan-900/40">
                       <div className="flex h-full w-full items-center justify-center rounded-full bg-[#020617] text-sm font-bold text-white">
                         {user?.name?.[0]?.toUpperCase() || "U"}
                       </div>
@@ -138,7 +138,7 @@ export default function Navbar() {
 
                 {/* Dropdown Menu */}
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-2xl border border-cyan-500/30 bg-[#020617] p-3 shadow-2xl shadow-cyan-950/80 animate-in fade-in zoom-in-95">
+                  <div className="absolute right-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-64 rounded-2xl border border-cyan-500/30 bg-[#020617] p-3 shadow-2xl shadow-cyan-950/80 animate-in fade-in zoom-in-95">
                     <div className="mb-2 rounded-xl border border-cyan-500/20 bg-cyan-950/40 p-3">
                       <p className="truncate text-xs font-bold text-white">
                         {user?.name}
@@ -209,12 +209,20 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <Link
-                href="/login"
-                className="rounded-xl bg-cyan-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-900/20 transition-all hover:bg-cyan-500"
-              >
-                Sign In
-              </Link>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Link
+                  href="/login"
+                  className="rounded-xl border border-cyan-500/30 bg-white/[0.04] px-3.5 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold text-cyan-100 shadow-lg shadow-cyan-900/10 transition-all hover:bg-white/[0.08] hover:border-cyan-500/50"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-xl bg-cyan-600 px-3.5 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-cyan-900/20 transition-all hover:bg-cyan-500"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
         </div>
