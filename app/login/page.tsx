@@ -5,15 +5,7 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [userType, setUserType] = useState<"STUDENT" | "MANAGER">("STUDENT");
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    alert("Email/password login is not available yet. Please use Continue with Google.");
-  };
 
   const handleGoogleSignIn = () => {
     const callbackUrl =
@@ -28,7 +20,7 @@ export default function LoginPage() {
       <div className="login-orb-2 pointer-events-none absolute -bottom-32 -right-32 h-[30rem] w-[30rem] rounded-full bg-blue-500/20 blur-3xl" />
 
       <div className="relative mx-auto grid max-w-6xl overflow-hidden rounded-3xl border border-cyan-100 bg-white shadow-2xl shadow-slate-900/10 lg:grid-cols-2">
-        <div className="login-form-panel p-7 sm:p-10 lg:p-12">
+        <div className="login-form-panel flex flex-col justify-center p-7 sm:p-10 lg:p-12">
           <Link href="/" className="login-logo group inline-flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-lg shadow-lg shadow-cyan-500/25 transition duration-300 group-hover:scale-110 group-hover:rotate-3">
               🏠
@@ -59,120 +51,55 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="login-form mt-8 space-y-5">
-            <div>
-              <label className="mb-3 block text-sm font-bold text-slate-700">
-                I am logging in as
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setUserType("STUDENT")}
-                  className={`group rounded-2xl border-2 p-4 text-left transition-all duration-300 ${
-                    userType === "STUDENT"
-                      ? "border-cyan-500 bg-cyan-50 shadow-lg shadow-cyan-100"
-                      : "border-slate-200 bg-white hover:-translate-y-1 hover:border-cyan-300 hover:shadow-md"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="text-2xl transition-transform duration-300 group-hover:scale-110">🎓</div>
-                    {userType === "STUDENT" && (
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500 text-xs text-white">✓</div>
-                    )}
-                  </div>
-                  <p className="mt-3 font-bold text-slate-900">Student</p>
-                  <p className="mt-1 text-xs text-slate-500">Find accommodation</p>
-                </button>
+          <div className="login-form mt-8">
+            <label className="mb-3 block text-sm font-bold text-slate-700">
+              I am logging in as
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setUserType("STUDENT")}
+                className={`group rounded-2xl border-2 p-4 text-left transition-all duration-300 ${
+                  userType === "STUDENT"
+                    ? "border-cyan-500 bg-cyan-50 shadow-lg shadow-cyan-100"
+                    : "border-slate-200 bg-white hover:-translate-y-1 hover:border-cyan-300 hover:shadow-md"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl transition-transform duration-300 group-hover:scale-110">🎓</div>
+                  {userType === "STUDENT" && (
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500 text-xs text-white">✓</div>
+                  )}
+                </div>
+                <p className="mt-3 font-bold text-slate-900">Student</p>
+                <p className="mt-1 text-xs text-slate-500">Find accommodation</p>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => setUserType("MANAGER")}
-                  className={`group rounded-2xl border-2 p-4 text-left transition-all duration-300 ${
-                    userType === "MANAGER"
-                      ? "border-cyan-500 bg-cyan-50 shadow-lg shadow-cyan-100"
-                      : "border-slate-200 bg-white hover:-translate-y-1 hover:border-cyan-300 hover:shadow-md"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="text-2xl transition-transform duration-300 group-hover:scale-110">🏠</div>
-                    {userType === "MANAGER" && (
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500 text-xs text-white">✓</div>
-                    )}
-                  </div>
-                  <p className="mt-3 font-bold text-slate-900">Manager</p>
-                  <p className="mt-1 text-xs text-slate-500">Manage properties</p>
-                </button>
-              </div>
-            </div>
-
-            <div className="login-field">
-              <label className="mb-2 block text-sm font-bold text-slate-700">Email Address</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base">✉️</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition-all duration-300 placeholder:text-slate-400 hover:border-cyan-300 focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
-                />
-              </div>
-            </div>
-
-            <div className="login-field-delay">
-              <label className="mb-2 block text-sm font-bold text-slate-700">Password</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base">🔒</span>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-16 text-sm text-slate-900 outline-none transition-all duration-300 placeholder:text-slate-400 hover:border-cyan-300 focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-cyan-600 transition hover:text-cyan-800"
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
-              </div>
-            </div>
-
-            <div className="login-field-delay-2 flex items-center justify-between">
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
-                <input type="checkbox" className="h-4 w-4 cursor-pointer accent-cyan-500" />
-                Remember me
-              </label>
-              <button type="button" className="text-sm font-bold text-cyan-600 transition hover:text-cyan-800 hover:underline">
-                Forgot password?
+              <button
+                type="button"
+                onClick={() => setUserType("MANAGER")}
+                className={`group rounded-2xl border-2 p-4 text-left transition-all duration-300 ${
+                  userType === "MANAGER"
+                    ? "border-cyan-500 bg-cyan-50 shadow-lg shadow-cyan-100"
+                    : "border-slate-200 bg-white hover:-translate-y-1 hover:border-cyan-300 hover:shadow-md"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl transition-transform duration-300 group-hover:scale-110">🏠</div>
+                  {userType === "MANAGER" && (
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500 text-xs text-white">✓</div>
+                  )}
+                </div>
+                <p className="mt-3 font-bold text-slate-900">Manager</p>
+                <p className="mt-1 text-xs text-slate-500">Manage properties</p>
               </button>
             </div>
-
-            <button
-              type="submit"
-              className="login-button group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-slate-950 via-blue-950 to-cyan-700 py-3.5 font-bold text-white shadow-lg shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/30"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Sign In
-                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-              </span>
-              <span className="absolute inset-0 translate-x-[-100%] bg-white/10 transition-transform duration-500 group-hover:translate-x-0" />
-            </button>
-          </form>
-
-          <div className="relative my-6 flex items-center justify-center">
-            <div className="w-full border-t border-slate-200" />
-            <span className="absolute bg-white px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Or continue with</span>
           </div>
 
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300 hover:bg-slate-50 hover:shadow-md active:translate-y-0"
+            className="login-button mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-300 hover:bg-slate-50 hover:shadow-md active:translate-y-0"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

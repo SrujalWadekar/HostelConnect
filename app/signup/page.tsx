@@ -1,30 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
+import { useState } from "react";
 
 export default function SignupPage() {
-  const router = useRouter();
-
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [role, setRole] = useState<"STUDENT" | "MANAGER">("STUDENT");
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (role === "MANAGER") {
-      router.push("/dashboard/manager");
-    } else {
-      router.push("/dashboard/student");
-    }
-  };
 
   const handleGoogleSignUp = () => {
     const callbackUrl =
@@ -110,7 +93,7 @@ export default function SignupPage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="p-8 sm:p-12"
+          className="flex flex-col justify-center p-8 sm:p-12"
         >
           {/* LOGO */}
           <motion.div variants={itemVariants}>
@@ -144,200 +127,59 @@ export default function SignupPage() {
             </p>
           </motion.div>
 
-          {/* FORM */}
-          <motion.form
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            onSubmit={handleSubmit}
-            className="mt-8 space-y-4"
-          >
-            {/* ROLE */}
-            <motion.div variants={itemVariants}>
-              <label className="mb-3 block text-sm font-semibold text-slate-700">
-                I am joining as
-              </label>
+          {/* ROLE SELECTOR */}
+          <motion.div variants={itemVariants} className="mt-8">
+            <label className="mb-3 block text-sm font-semibold text-slate-700">
+              I am joining as
+            </label>
 
-              <div className="grid grid-cols-2 gap-3">
-                <motion.button
-                  type="button"
-                  onClick={() => setRole("STUDENT")}
-                  whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.97 }}
-                  className={`rounded-xl border-2 p-4 text-left transition ${
-                    role === "STUDENT"
-                      ? "border-cyan-500 bg-cyan-50 shadow-sm shadow-cyan-100"
-                      : "border-slate-200 bg-white hover:border-cyan-300"
-                  }`}
+            <div className="grid grid-cols-2 gap-3">
+              <motion.button
+                type="button"
+                onClick={() => setRole("STUDENT")}
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.97 }}
+                className={`rounded-xl border-2 p-4 text-left transition ${
+                  role === "STUDENT"
+                    ? "border-cyan-500 bg-cyan-50 shadow-sm shadow-cyan-100"
+                    : "border-slate-200 bg-white hover:border-cyan-300"
+                }`}
+              >
+                <motion.div
+                  animate={role === "STUDENT" ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-xl"
                 >
-                  <motion.div
-                    animate={
-                      role === "STUDENT"
-                        ? { scale: [1, 1.15, 1] }
-                        : { scale: 1 }
-                    }
-                    transition={{ duration: 0.3 }}
-                    className="text-xl"
-                  >
-                    🎓
-                  </motion.div>
+                  🎓
+                </motion.div>
 
-                  <p className="mt-2 font-bold text-slate-900">Student</p>
-                  <p className="text-xs text-slate-500">Find accommodation</p>
-                </motion.button>
+                <p className="mt-2 font-bold text-slate-900">Student</p>
+                <p className="text-xs text-slate-500">Find accommodation</p>
+              </motion.button>
 
-                <motion.button
-                  type="button"
-                  onClick={() => setRole("MANAGER")}
-                  whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.97 }}
-                  className={`rounded-xl border-2 p-4 text-left transition ${
-                    role === "MANAGER"
-                      ? "border-cyan-500 bg-cyan-50 shadow-sm shadow-cyan-100"
-                      : "border-slate-200 bg-white hover:border-cyan-300"
-                  }`}
+              <motion.button
+                type="button"
+                onClick={() => setRole("MANAGER")}
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.97 }}
+                className={`rounded-xl border-2 p-4 text-left transition ${
+                  role === "MANAGER"
+                    ? "border-cyan-500 bg-cyan-50 shadow-sm shadow-cyan-100"
+                    : "border-slate-200 bg-white hover:border-cyan-300"
+                }`}
+              >
+                <motion.div
+                  animate={role === "MANAGER" ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-xl"
                 >
-                  <motion.div
-                    animate={
-                      role === "MANAGER"
-                        ? { scale: [1, 1.15, 1] }
-                        : { scale: 1 }
-                    }
-                    transition={{ duration: 0.3 }}
-                    className="text-xl"
-                  >
-                    🏠
-                  </motion.div>
+                  🏠
+                </motion.div>
 
-                  <p className="mt-2 font-bold text-slate-900">Manager</p>
-                  <p className="text-xs text-slate-500">List your property</p>
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* FULL NAME */}
-            <motion.div variants={itemVariants}>
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Full Name
-              </label>
-
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2">
-                  👤
-                </span>
-
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter your full name"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
-                />
-              </div>
-            </motion.div>
-
-            {/* EMAIL */}
-            <motion.div variants={itemVariants}>
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Email Address
-              </label>
-
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2">
-                  ✉️
-                </span>
-
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
-                />
-              </div>
-            </motion.div>
-
-            {/* PASSWORD */}
-            <motion.div variants={itemVariants}>
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Create Password
-              </label>
-
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2">
-                  🔒
-                </span>
-
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Create a strong password"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-16 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-100"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-cyan-600 hover:text-cyan-800"
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
-              </div>
-            </motion.div>
-
-            {/* TERMS */}
-            <motion.label
-              variants={itemVariants}
-              className="flex cursor-pointer items-start gap-2 text-sm text-slate-600"
-            >
-              <input
-                type="checkbox"
-                required
-                className="mt-1 h-4 w-4 accent-cyan-500"
-              />
-
-              <span>
-                I agree to the{" "}
-                <span className="font-semibold text-cyan-600">
-                  Terms of Service
-                </span>{" "}
-                and{" "}
-                <span className="font-semibold text-cyan-600">
-                  Privacy Policy
-                </span>
-              </span>
-            </motion.label>
-
-            {/* SUBMIT */}
-            <motion.button
-              variants={itemVariants}
-              type="submit"
-              whileHover={{
-                scale: 1.02,
-                y: -2,
-              }}
-              whileTap={{
-                scale: 0.98,
-              }}
-              className="w-full rounded-xl bg-gradient-to-r from-slate-950 via-blue-950 to-cyan-700 py-3.5 font-bold text-white shadow-lg shadow-cyan-500/20 transition hover:shadow-xl hover:shadow-cyan-500/30"
-            >
-              Create Account →
-            </motion.button>
-          </motion.form>
-
-          {/* OR DIVIDER */}
-          <motion.div
-            variants={itemVariants}
-            className="relative my-6 flex items-center justify-center"
-          >
-            <div className="w-full border-t border-slate-200" />
-            <span className="absolute bg-white px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Or sign up with
-            </span>
+                <p className="mt-2 font-bold text-slate-900">Manager</p>
+                <p className="text-xs text-slate-500">List your property</p>
+              </motion.button>
+            </div>
           </motion.div>
 
           {/* GOOGLE SIGN UP BUTTON */}
@@ -347,7 +189,7 @@ export default function SignupPage() {
             onClick={handleGoogleSignUp}
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-cyan-300 hover:bg-slate-50 hover:shadow-md"
+            className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white py-3.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-cyan-300 hover:bg-slate-50 hover:shadow-md"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
