@@ -30,12 +30,12 @@ interface StudentBooking {
   };
 }
 
-export default function ClientDashboard({ 
-  myBookings = [], 
-  availableProperties = [] 
-}: { 
-  myBookings: StudentBooking[]; 
-  availableProperties: Property[]; 
+export default function ClientDashboard({
+  myBookings = [],
+  availableProperties = []
+}: {
+  myBookings: StudentBooking[];
+  availableProperties: Property[];
 }) {
   const { data: session } = useSession();
 
@@ -43,13 +43,14 @@ export default function ClientDashboard({
   const [stayType, setStayType] = useState<"DAILY" | "MONTHLY">("MONTHLY");
   const [selectedType, setSelectedType] = useState<string>("ALL"); // ALL, HOSTEL, PG
   const [selectedGender, setSelectedGender] = useState<string>("ALL"); // ALL, MALE, FEMALE
-
+  const [maxPrice, setMaxPrice] = useState<number | "">("");
+  const [hideFull, setHideFull] = useState(false);
   // Filtered properties based on user selection
   const filteredHostels = availableProperties.filter((h) => {
     const matchesCity = city.trim()
       ? h.city.toLowerCase().includes(city.toLowerCase()) ||
-        h.name.toLowerCase().includes(city.toLowerCase()) ||
-        h.address.toLowerCase().includes(city.toLowerCase())
+      h.name.toLowerCase().includes(city.toLowerCase()) ||
+      h.address.toLowerCase().includes(city.toLowerCase())
       : true;
 
     const matchesType = selectedType === "ALL" || h.type.toUpperCase() === selectedType.toUpperCase();
@@ -59,17 +60,22 @@ export default function ClientDashboard({
       h.gender.toUpperCase() === selectedGender.toUpperCase() ||
       h.gender === "ANY";
 
-    return matchesCity && matchesType && matchesGender;
+    const relevantPrice = stayType === "DAILY" ? h.dailyPrice : h.monthlyPrice;
+    const matchesPrice = maxPrice === "" || relevantPrice <= maxPrice;
+
+    const matchesAvailability = !hideFull || h.availableBeds > 0;
+
+    return matchesCity && matchesType && matchesGender && matchesPrice && matchesAvailability;
   });
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-8">
-      
+
       {/* 1. MIDNIGHT HEADER BANNER */}
       <div className="relative bg-[#020617] text-white p-8 md:p-10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-cyan-900/20">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 bg-cyan-500 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
-        
+
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="flex items-center gap-5">
             {session?.user?.image ? (
@@ -154,6 +160,31 @@ export default function ClientDashboard({
             <option value="DAILY">Daily Plan (Short-term)</option>
           </select>
         </div>
+
+        <div className="hidden md:block w-px h-10 bg-slate-100"></div>
+
+        {/* Max Price Filter */}
+        <div className="w-full md:w-48 relative flex items-center">
+          <input
+            type="number"
+            min={0}
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value === "" ? "" : Number(e.target.value))}
+            placeholder={stayType === "DAILY" ? "Max ₹/day" : "Max ₹/month"}
+            className="w-full bg-slate-50/50 hover:bg-slate-50 border border-transparent focus:border-cyan-500 focus:bg-white focus:ring-4 focus:ring-cyan-500/10 rounded-2xl py-3.5 px-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-400"
+          />
+        </div>
+
+        {/* Hide Full Toggle */}
+        <label className="w-full md:w-auto flex items-center gap-2 bg-slate-50/50 hover:bg-slate-50 rounded-2xl py-3.5 px-4 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={hideFull}
+            onChange={(e) => setHideFull(e.target.checked)}
+            className="w-4 h-4 accent-cyan-600"
+          />
+          <span className="text-xs font-bold text-slate-700 whitespace-nowrap">Hide Full</span>
+        </label>
       </div>
 
       {/* 3. MY APPLICATIONS TRACKER */}
@@ -171,11 +202,10 @@ export default function ClientDashboard({
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
                       {booking.hostel.type}
                     </span>
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border ${
-                      booking.status === "CONFIRMED" || booking.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border ${booking.status === "CONFIRMED" || booking.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                       booking.status === "REJECTED" ? "bg-rose-50 text-rose-700 border-rose-200" :
-                      "bg-amber-50 text-amber-700 border-amber-200 animate-pulse"
-                    }`}>
+                        "bg-amber-50 text-amber-700 border-amber-200 animate-pulse"
+                      }`}>
                       {booking.status}
                     </span>
                   </div>
@@ -194,7 +224,7 @@ export default function ClientDashboard({
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
             Available Accommodations <span className="text-slate-400 text-lg">({filteredHostels.length})</span>
           </h2>
-          
+
           {/* Gender Filter Buttons */}
           <div className="flex gap-1 p-1 bg-white border border-slate-200 rounded-xl shadow-sm">
             {[
@@ -205,11 +235,10 @@ export default function ClientDashboard({
               <button
                 key={g.value}
                 onClick={() => setSelectedGender(g.value)}
-                className={`rounded-lg px-4 py-2 text-[11px] uppercase tracking-widest font-black transition-all ${
-                  selectedGender === g.value
-                    ? "bg-[#020617] text-white shadow-md"
-                    : "bg-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                }`}
+                className={`rounded-lg px-4 py-2 text-[11px] uppercase tracking-widest font-black transition-all ${selectedGender === g.value
+                  ? "bg-[#020617] text-white shadow-md"
+                  : "bg-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
               >
                 {g.label}
               </button>
@@ -244,7 +273,7 @@ export default function ClientDashboard({
                   </div>
 
                   <h3 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-cyan-600 transition-colors line-clamp-1">{h.name}</h3>
-                  
+
                   <p className="mt-2 text-xs font-medium text-slate-500 flex items-start gap-1.5 line-clamp-2 min-h-[32px]">
                     <svg className="w-4 h-4 shrink-0 text-slate-300 fill-none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     {h.address}, {h.city}
