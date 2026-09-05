@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import RequestBedButton from "@/components/RequestBedButton";
+import { motion } from "framer-motion";
 
 interface Property {
   id: string;
@@ -72,7 +73,7 @@ export default function ClientDashboard({
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-8">
 
       {/* 1. MIDNIGHT HEADER BANNER */}
-      <div className="relative bg-[#020617] text-white p-8 md:p-10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-cyan-900/20">
+      <div className="dash-fade-up relative bg-[#020617] text-white p-8 md:p-10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-cyan-900/20">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 bg-cyan-500 rounded-full blur-[120px] opacity-20 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
 
@@ -119,7 +120,12 @@ export default function ClientDashboard({
       </div>
 
       {/* 2. SMART SEARCH & FILTER BAR */}
-      <div className="bg-white p-4 rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center gap-3 relative z-20 -mt-4 mx-4 md:mx-10">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+        className="bg-white p-4 rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center gap-3 relative z-20 -mt-4 mx-4 md:mx-10"
+      >
         {/* Search */}
         <div className="flex-1 w-full relative flex items-center">
           <div className="absolute left-4 text-slate-400">
@@ -185,38 +191,40 @@ export default function ClientDashboard({
           />
           <span className="text-xs font-bold text-slate-700 whitespace-nowrap">Hide Full</span>
         </label>
-      </div>
+      </motion.div>
 
       {/* 3. MY APPLICATIONS TRACKER */}
-      {myBookings.length > 0 && (
-        <section className="space-y-4 pt-4">
-          <div className="flex items-center gap-2 px-2">
-            <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
-            <h2 className="text-xl font-black text-slate-900 tracking-tight">My Booking Requests</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {myBookings.map((booking: StudentBooking) => (
-              <div key={booking.id} className="bg-white p-5 rounded-[1.5rem] border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col justify-between group">
-                <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
-                      {booking.hostel.type}
-                    </span>
-                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border ${booking.status === "CONFIRMED" || booking.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-                      booking.status === "REJECTED" ? "bg-rose-50 text-rose-700 border-rose-200" :
-                        "bg-amber-50 text-amber-700 border-amber-200 animate-pulse"
-                      }`}>
-                      {booking.status}
-                    </span>
+      {
+        myBookings.length > 0 && (
+          <section className="space-y-4 pt-4">
+            <div className="flex items-center gap-2 px-2">
+              <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">My Booking Requests</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {myBookings.map((booking: StudentBooking) => (
+                <div key={booking.id} className="bg-white p-5 rounded-[1.5rem] border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col justify-between group">
+                  <div>
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
+                        {booking.hostel.type}
+                      </span>
+                      <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border ${booking.status === "CONFIRMED" || booking.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                        booking.status === "REJECTED" ? "bg-rose-50 text-rose-700 border-rose-200" :
+                          "bg-amber-50 text-amber-700 border-amber-200 animate-pulse"
+                        }`}>
+                        {booking.status}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-lg text-slate-900 group-hover:text-cyan-600 transition-colors">{booking.hostel.name}</h3>
+                    <p className="text-xs font-medium text-slate-500 mt-1">{booking.hostel.address}, {booking.hostel.city}</p>
                   </div>
-                  <h3 className="font-bold text-lg text-slate-900 group-hover:text-cyan-600 transition-colors">{booking.hostel.name}</h3>
-                  <p className="text-xs font-medium text-slate-500 mt-1">{booking.hostel.address}, {booking.hostel.city}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+              ))}
+            </div>
+          </section>
+        )
+      }
 
       {/* 4. ACCOMMODATIONS GRID */}
       <section className="pt-6">
@@ -257,9 +265,13 @@ export default function ClientDashboard({
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredHostels.map((h) => (
-              <div
+              <motion.div
                 key={h.id}
-                className="flex flex-col justify-between rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:shadow-cyan-900/5 hover:-translate-y-1 hover:border-cyan-300 group"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                whileHover={{ y: -6 }}
+                className="flex flex-col justify-between rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-xl hover:shadow-cyan-900/5 hover:border-cyan-300 group"
               >
                 <div>
                   <div className="flex items-start justify-between mb-4">
@@ -295,11 +307,11 @@ export default function ClientDashboard({
                 <div className="mt-4">
                   <RequestBedButton hostelId={h.id} stayType={stayType} />
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
       </section>
-    </div>
+    </div >
   );
 }

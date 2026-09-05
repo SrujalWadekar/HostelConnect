@@ -4,13 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { switchUserRole } from "@/app/actions/hostel";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [switching, setSwitching] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const user = session?.user as
@@ -32,18 +30,6 @@ export default function Navbar() {
   const dashboardPath = isManager
     ? "/dashboard/manager"
     : "/dashboard/student";
-
-  // Handle instant 1-click role switch
-  async function handleSwitchRole() {
-    setSwitching(true);
-    try {
-      await switchUserRole();
-      window.location.href = isManager ? "/dashboard/student" : "/dashboard/manager";
-    } catch (err) {
-      console.error("Failed to switch role:", err);
-      setSwitching(false);
-    }
-  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -179,23 +165,8 @@ export default function Navbar() {
                       </Link>
                     </div>
 
-                    {/* Role Switcher & Sign Out */}
-                    <div className="mt-2 border-t border-cyan-950/60 pt-2 space-y-1.5">
-                      <button
-                        type="button"
-                        onClick={handleSwitchRole}
-                        disabled={switching}
-                        className="flex w-full cursor-pointer items-center justify-between rounded-xl bg-cyan-500/10 px-3 py-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/20 hover:text-white disabled:opacity-50"
-                      >
-                        <span className="flex items-center gap-2">
-                          <span>🔄</span>
-                          <span>{switching ? "Switching..." : `Switch to ${isManager ? "Student" : "Manager"}`}</span>
-                        </span>
-                        <span className="text-[9px] uppercase font-black bg-cyan-400 text-[#020617] px-1.5 py-0.5 rounded">
-                          Mode
-                        </span>
-                      </button>
-
+                    {/* Sign Out */}
+                    <div className="mt-2 border-t border-cyan-950/60 pt-2">
                       <button
                         type="button"
                         onClick={() => signOut({ callbackUrl: "/login" })}

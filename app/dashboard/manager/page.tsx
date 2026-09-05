@@ -113,39 +113,45 @@ export default async function ManagerDashboard() {
   return (
     <div className="min-h-screen bg-[#ecfeff] text-[#020617] p-4 md:p-8 space-y-8 pb-20 font-sans">
       {/* Midnight Premium Header */}
-      <div className="relative bg-[#020617] text-white p-8 md:p-10 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-cyan-900/20">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-cyan-500 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-48 h-48 bg-emerald-500 rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
+      <div className="dash-fade-up relative bg-gradient-to-br from-slate-900 via-blue-950 to-cyan-900 text-white px-6 py-5 md:px-8 md:py-6 rounded-[2rem] overflow-hidden shadow-2xl shadow-cyan-900/20">
+        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-cyan-500 rounded-full blur-[90px] opacity-30 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-36 h-36 bg-emerald-500 rounded-full blur-[70px] opacity-20 pointer-events-none"></div>
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#020617] bg-cyan-400 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-                Pro Dashboard
-              </span>
-              <span className="text-xs text-cyan-200/60 font-mono tracking-wider">
-                ID: {user?.id.slice(0, 8)}
-              </span>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-2xl shadow-lg shadow-cyan-500/20">
+              👋
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
-              Hello, {session.user.name?.split(" ")[0] || "Manager"} <span className="inline-block">👋</span>
-            </h1>
-            <p className="text-sm md:text-base text-cyan-100/70 max-w-xl leading-relaxed">
-              Command central for your properties. Monitor occupancy, manage students, and scale your hostel & PG network.
-            </p>
+            <div>
+              <div className="flex items-center gap-3 mb-1.5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#020617] bg-cyan-400 px-2.5 py-0.5 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+                  Pro Dashboard
+                </span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                Hello, {session.user.name?.split(" ")[0] || "Manager"}
+              </h1>
+              <p className="text-xs md:text-sm text-cyan-100/70 max-w-xl leading-relaxed mt-1">
+                Command central for your properties — occupancy, students, and your hostel network.
+              </p>
+            </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-3xl text-center min-w-[160px]">
-            <p className="text-xs font-semibold text-cyan-200 uppercase tracking-wider mb-1">Total Yield</p>
-            <p className="text-2xl font-black text-white">{formatINR(estimatedRevenue)}</p>
-            <p className="text-[10px] text-emerald-400 mt-1 font-medium tracking-wide">/ monthly</p>
+          <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/10 px-5 py-3 rounded-2xl">
+            <div>
+              <p className="text-[10px] font-semibold text-cyan-200 uppercase tracking-wider">Total Yield</p>
+              <p className="text-xl font-black text-white leading-tight">{formatINR(estimatedRevenue)}</p>
+            </div>
+            <span className="text-[10px] text-emerald-400 font-bold bg-emerald-400/10 border border-emerald-400/20 px-2 py-1 rounded-full">
+              / mo
+            </span>
           </div>
         </div>
       </div>
 
       {/* Insight Banner */}
       {pendingBookings.length > 0 && (
-        <div className="bg-gradient-to-r from-cyan-600 to-emerald-600 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-white shadow-lg shadow-cyan-900/10 hover:-translate-y-1 transition-transform duration-300">
+        <div className="dash-fade-up dash-delay-1 bg-gradient-to-r from-cyan-600 to-emerald-600 rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-white shadow-lg shadow-cyan-900/10 hover:-translate-y-1 transition-transform duration-300">
           <div className="flex items-center gap-4">
             <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,7 +170,7 @@ export default async function ManagerDashboard() {
 
       {/* Analytics KPI Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-cyan-900/5 transition-all duration-300 border border-transparent hover:border-cyan-100 group">
+        <div className="dash-fade-up dash-delay-1 bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-cyan-900/5 transition-all duration-300 border border-transparent hover:border-cyan-100 hover:-translate-y-1 group">
           <div className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-cyan-50 group-hover:text-cyan-600 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -174,7 +180,7 @@ export default async function ManagerDashboard() {
           <p className="text-4xl font-black text-[#020617] mt-1">{hostels.length}</p>
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 border border-transparent hover:border-emerald-100 group">
+        <div className="dash-fade-up dash-delay-2 bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 border border-transparent hover:border-emerald-100 hover:-translate-y-1 group">
           <div className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -184,7 +190,7 @@ export default async function ManagerDashboard() {
           <p className="text-4xl font-black text-[#020617] mt-1">{activeResidents} <span className="text-sm font-semibold text-slate-400">/ {totalCapacity}</span></p>
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-amber-900/5 transition-all duration-300 border border-transparent hover:border-amber-100 group">
+        <div className="dash-fade-up dash-delay-3 bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-amber-900/5 transition-all duration-300 border border-transparent hover:border-amber-100 hover:-translate-y-1 group">
           <div className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-amber-50 group-hover:text-amber-600 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -194,7 +200,7 @@ export default async function ManagerDashboard() {
           <p className="text-4xl font-black text-[#020617] mt-1">{pendingBookings.length}</p>
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-cyan-900/5 transition-all duration-300 border border-transparent hover:border-cyan-100 group flex flex-col justify-between">
+        <div className="dash-fade-up dash-delay-4 bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-cyan-900/5 transition-all duration-300 border border-transparent hover:border-cyan-100 hover:-translate-y-1 group flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center group-hover:bg-cyan-50 group-hover:text-cyan-600 transition-colors">
@@ -314,7 +320,7 @@ export default async function ManagerDashboard() {
                   return (
                     <div
                       key={hostel.id}
-                      className="bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative border border-slate-100"
+                      className="dash-fade-up bg-white p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative border border-slate-100 hover:border-cyan-200"
                     >
                       {/* Top Badges */}
                       <div>
@@ -360,10 +366,10 @@ export default async function ManagerDashboard() {
                           <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full transition-all duration-1000 ${isFull
-                                  ? "bg-rose-500"
-                                  : isHighDemand
-                                    ? "bg-gradient-to-r from-orange-400 to-rose-500"
-                                    : "bg-gradient-to-r from-cyan-400 to-emerald-400"
+                                ? "bg-rose-500"
+                                : isHighDemand
+                                  ? "bg-gradient-to-r from-orange-400 to-rose-500"
+                                  : "bg-gradient-to-r from-cyan-400 to-emerald-400"
                                 }`}
                               style={{ width: `${occupancyPercent}%` }}
                             ></div>
