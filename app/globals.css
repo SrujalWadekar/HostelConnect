@@ -6,6 +6,10 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-y: scroll; /* always reserve space for the vertical scrollbar */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #0891b2 #f0fdfa; /* Firefox: thumb track */
 }
 
 body {
