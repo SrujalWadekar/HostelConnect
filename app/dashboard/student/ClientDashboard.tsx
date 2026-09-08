@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import RequestBedButton from "@/components/RequestBedButton";
 import { motion } from "framer-motion";
@@ -46,6 +46,32 @@ export default function ClientDashboard({
   const [selectedGender, setSelectedGender] = useState<string>("ALL"); // ALL, MALE, FEMALE
   const [maxPrice, setMaxPrice] = useState<number | "">("");
   const [hideFull, setHideFull] = useState(false);
+  const [seenStatuses, setSeenStatuses] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const stored = localStorage.getItem("hc_seen_booking_statuses");
+    if (stored) {
+      try {
+        setSeenStatuses(JSON.parse(stored));
+      } catch {
+        setSeenStatuses({});
+      }
+    }
+  }, []);
+
+  function isNewStatus(bookingId: string, status: string) {
+    return seenStatuses[bookingId] !== status;
+  }
+
+  function markAllSeen() {
+    const updated: Record<string, string> = {};
+    myBookings.forEach((b) => {
+      updated[b.id] = b.status;
+    });
+    setSeenStatuses(updated);
+    localStorage.setItem("hc_seen_booking_statuses", JSON.stringify(updated));
+  }
+
   // Filtered properties based on user selection
   const filteredHostels = availableProperties.filter((h) => {
     const matchesCity = city.trim()
@@ -197,13 +223,33 @@ export default function ClientDashboard({
       {
         myBookings.length > 0 && (
           <section className="space-y-4 pt-4">
-            <div className="flex items-center gap-2 px-2">
-              <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
-              <h2 className="text-xl font-black text-slate-900 tracking-tight">My Booking Requests</h2>
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight">My Booking Requests</h2>
+              </div>
+              {myBookings.some((b) => isNewStatus(b.id, b.status)) && (
+                <button
+                  onClick={markAllSeen}
+                  className="text-xs font-bold text-cyan-600 hover:text-cyan-800 transition"
+                >
+                  Mark all as read
+                </button>
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {myBookings.map((booking: StudentBooking) => (
-                <div key={booking.id} className="bg-white p-5 rounded-[1.5rem] border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col justify-between group">
+                <div
+                  key={booking.id}
+                  className={`bg-white p-5 rounded-[1.5rem] border shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col justify-between group relative ${
+                    isNewStatus(booking.id, booking.status) ? "border-cyan-400 ring-2 ring-cyan-100" : "border-slate-200"
+                  }`}
+                >
+                  {isNewStatus(booking.id, booking.status) && (
+                    <span className="absolute -top-2 -right-2 text-[9px] font-black uppercase tracking-wider bg-cyan-500 text-white px-2 py-1 rounded-full shadow-md">
+                      New
+                    </span>
+                  )}
                   <div>
                     <div className="flex justify-between items-start mb-3">
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">

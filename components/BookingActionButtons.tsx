@@ -3,17 +3,17 @@
 import { useState } from "react";
 import { updateBookingStatus } from "@/app/actions/booking";
 
-export type BookingStatus = "CONFIRMED" | "APPROVED" | "REJECTED" | "PENDING";
+export type BookingStatus = "APPROVED" | "REJECTED" | "PENDING";
 
 interface BookingActionButtonsProps {
   bookingId: string;
 }
 
 export default function BookingActionButtons({ bookingId }: BookingActionButtonsProps) {
-  const [activeAction, setActiveAction] = useState<"CONFIRMED" | "REJECTED" | null>(null);
+  const [activeAction, setActiveAction] = useState<"APPROVED" | "REJECTED" | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  async function handleStatus(status: "CONFIRMED" | "REJECTED") {
+  async function handleStatus(status: "APPROVED" | "REJECTED") {
     setActiveAction(status);
     setErrorMsg(null);
 
@@ -33,11 +33,11 @@ export default function BookingActionButtons({ bookingId }: BookingActionButtons
       <div className="flex items-center gap-2">
         {/* Accept Button */}
         <button
-          onClick={() => handleStatus("CONFIRMED")}
+          onClick={() => handleStatus("APPROVED")}
           disabled={isLoading}
           className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm hover:shadow transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          {activeAction === "CONFIRMED" ? (
+          {activeAction === "APPROVED" ? (
             <>
               <svg className="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
