@@ -6,6 +6,17 @@ import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { PropertyType, GenderAllowed, Prisma } from "@prisma/client";
 
+// Strips everything except digits and keeps the last 10 (so "+91 98765 43210" -> "9876543210")
+function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  return digits.slice(-10);
+}
+
+function isValidPhone(phone: string): boolean {
+  const normalized = normalizePhone(phone);
+  return /^[6-9]\d{9}$/.test(normalized);
+}
+
 export async function createHostel(formData: FormData) {
   const session = await getServerSession(authOptions);
 
@@ -31,13 +42,23 @@ export async function createHostel(formData: FormData) {
   const type = (formData.get("type") as PropertyType) || "HOSTEL";
   const gender = (formData.get("gender") as GenderAllowed) || "ANY";
 
+  const enteredOwnerPhone = (formData.get("ownerPhone") as string | null)?.trim();
+  const rawOwnerPhone = enteredOwnerPhone || user.ownerPhone || "";
+
   if (!name || !city || !address || isNaN(dailyPrice) || isNaN(monthlyPrice) || isNaN(availableBeds)) {
     throw new Error("Please provide all required fields with valid numbers.");
   }
 
+  if (!isValidPhone(rawOwnerPhone)) {
+    throw new Error("Please provide a valid 10-digit owner phone number.");
+  }
+
+  const ownerPhone = normalizePhone(rawOwnerPhone);
+
   const newHostel = await prisma.hostel.create({
     data: {
       name,
+      ownerPhone,
       type,
       city,
       address,
@@ -49,13 +70,21 @@ export async function createHostel(formData: FormData) {
     },
   });
 
+  // Save this as the manager's reusable default the first time it's set,
+  // so future listings auto-fill without retyping it.
+  if (enteredOwnerPhone && !user.ownerPhone) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { ownerPhone },
+    });
+  }
+
   revalidatePath("/dashboard/manager");
   revalidatePath("/dashboard/student");
 
   return { success: true, hostelId: newHostel.id };
 }
 
-// Filters students can search/browse by
 export type HostelFilters = {
   city?: string;
   type?: PropertyType;
@@ -130,6 +159,7 @@ export async function updateHostelDetails(
   hostelId: string,
   data: {
     name: string;
+    ownerPhone?: string;
     type: PropertyType;
     gender: GenderAllowed;
     city: string;
@@ -155,10 +185,16 @@ export async function updateHostelDetails(
     throw new Error("Property not found or unauthorized.");
   }
 
+  const trimmedPhone = data.ownerPhone?.trim();
+  if (trimmedPhone && !isValidPhone(trimmedPhone)) {
+    throw new Error("Please provide a valid 10-digit owner phone number.");
+  }
+
   await prisma.hostel.update({
     where: { id: hostelId },
     data: {
       name: data.name,
+      ownerPhone: trimmedPhone ? normalizePhone(trimmedPhone) : null,
       type: data.type,
       gender: data.gender,
       city: data.city,
@@ -176,7 +212,6 @@ export async function updateHostelDetails(
   return { success: true };
 }
 
-// Delete a hostel listing (manager-only, and only their own listing)
 export async function deleteHostel(hostelId: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) throw new Error("Unauthorized");
@@ -194,8 +229,6 @@ export async function deleteHostel(hostelId: string) {
     throw new Error("Property not found or unauthorized.");
   }
 
-  // BookingRequest and Review both reference Hostel without onDelete: Cascade,
-  // so related rows must be removed first or the delete will fail on the FK constraint.
   await prisma.$transaction([
     prisma.bookingRequest.deleteMany({ where: { hostelId } }),
     prisma.review.deleteMany({ where: { hostelId } }),
@@ -235,27 +268,4 @@ export async function addReview(hostelId: string, rating: number, comment?: stri
   revalidatePath("/dashboard/manager");
 
   return { success: true };
-}
-
-export async function switchUserRole() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) throw new Error("Unauthorized");
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-  if (!user) throw new Error("User not found");
-
-  const newRole = user.role === "MANAGER" ? "STUDENT" : "MANAGER";
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { role: newRole },
-  });
-
-  revalidatePath("/dashboard/manager");
-  revalidatePath("/dashboard/student");
-  revalidatePath("/", "layout");
-
-  return { success: true, newRole };
 }

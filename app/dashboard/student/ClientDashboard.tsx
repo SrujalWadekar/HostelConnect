@@ -4,6 +4,14 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import RequestBedButton from "@/components/RequestBedButton";
 import { motion } from "framer-motion";
+import ReviewsModal from "@/components/ReviewsModal";
+interface ReviewItem {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  reviewerName: string;
+}
 
 interface Property {
   id: string;
@@ -15,6 +23,10 @@ interface Property {
   monthlyPrice: number;
   availableBeds: number;
   gender: string;
+  avgRating: number | null;
+  reviewCount: number;
+  canReview: boolean;
+  reviews: ReviewItem[];
 }
 
 interface StudentBooking {
@@ -47,7 +59,7 @@ export default function ClientDashboard({
   const [maxPrice, setMaxPrice] = useState<number | "">("");
   const [hideFull, setHideFull] = useState(false);
   const [seenStatuses, setSeenStatuses] = useState<Record<string, string>>({});
-
+  const [reviewModalHostel, setReviewModalHostel] = useState<Property | null>(null);
   useEffect(() => {
     const stored = localStorage.getItem("hc_seen_booking_statuses");
     if (stored) {
@@ -241,9 +253,8 @@ export default function ClientDashboard({
               {myBookings.map((booking: StudentBooking) => (
                 <div
                   key={booking.id}
-                  className={`bg-white p-5 rounded-[1.5rem] border shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col justify-between group relative ${
-                    isNewStatus(booking.id, booking.status) ? "border-cyan-400 ring-2 ring-cyan-100" : "border-slate-200"
-                  }`}
+                  className={`bg-white p-5 rounded-[1.5rem] border shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col justify-between group relative ${isNewStatus(booking.id, booking.status) ? "border-cyan-400 ring-2 ring-cyan-100" : "border-slate-200"
+                    }`}
                 >
                   {isNewStatus(booking.id, booking.status) && (
                     <span className="absolute -top-2 -right-2 text-[9px] font-black uppercase tracking-wider bg-cyan-500 text-white px-2 py-1 rounded-full shadow-md">
@@ -330,7 +341,19 @@ export default function ClientDashboard({
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-cyan-600 transition-colors line-clamp-1">{h.name}</h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight group-hover:text-cyan-600 transition-colors line-clamp-1">{h.name}</h3>
+                    <button
+                      onClick={() => setReviewModalHostel(h)}
+                      className="shrink-0 flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-lg hover:bg-amber-100 transition"
+                    >
+                      {h.avgRating !== null ? (
+                        <>★ {h.avgRating.toFixed(1)} <span className="text-slate-400 font-medium">({h.reviewCount})</span></>
+                      ) : (
+                        <>☆ No reviews</>
+                      )}
+                    </button>
+                  </div>
 
                   <p className="mt-2 text-xs font-medium text-slate-500 flex items-start gap-1.5 line-clamp-2 min-h-[32px]">
                     <svg className="w-4 h-4 shrink-0 text-slate-300 fill-none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -358,6 +381,15 @@ export default function ClientDashboard({
           </div>
         )}
       </section>
+            {reviewModalHostel && (
+        <ReviewsModal
+          hostelId={reviewModalHostel.id}
+          hostelName={reviewModalHostel.name}
+          reviews={reviewModalHostel.reviews}
+          canReview={reviewModalHostel.canReview}
+          onClose={() => setReviewModalHostel(null)}
+        />
+      )}
     </div >
   );
 }

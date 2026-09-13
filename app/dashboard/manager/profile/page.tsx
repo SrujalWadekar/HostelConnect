@@ -10,6 +10,7 @@ import { PropertyType, GenderAllowed } from "@prisma/client";
 interface HostelProfileData {
   id: string;
   name: string;
+  ownerPhone: string | null;
   type: PropertyType;
   gender: GenderAllowed;
   city: string;
@@ -25,6 +26,7 @@ interface HostelProfileData {
 interface PropertyMetric {
   id: string;
   name: string;
+  ownerPhone: string | null;
   type: PropertyType;
   gender: GenderAllowed;
   city: string;
@@ -70,6 +72,7 @@ export default async function ManagerProfilePage() {
     select: {
       id: true,
       name: true,
+      ownerName: true,
       type: true,
       gender: true,
       city: true,
@@ -114,6 +117,7 @@ export default async function ManagerProfilePage() {
       return {
         id: hostel.id,
         name: hostel.name,
+        ownerPhone: hostel.ownerPhone,
         type: hostel.type,
         gender: hostel.gender,
         city: hostel.city,
@@ -140,7 +144,7 @@ export default async function ManagerProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#ecfeff] text-[#020617] p-4 md:p-10 space-y-8 pb-20 font-sans">
-      
+
       {/* 1. Header Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -172,7 +176,7 @@ export default async function ManagerProfilePage() {
       {/* 2. Manager Identity Card */}
       <div className="bg-[#020617] rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl shadow-cyan-900/20 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full bg-cyan-500 opacity-20 blur-[120px]" />
-        
+
         <div className="flex items-center gap-5 relative z-10">
           {user.image ? (
             <img

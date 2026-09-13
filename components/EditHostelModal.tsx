@@ -8,6 +8,7 @@ interface EditHostelModalProps {
   hostel: {
     id: string;
     name: string;
+    ownerPhone?: string | null;
     type: PropertyType;
     gender: GenderAllowed;
     city: string;
@@ -25,6 +26,7 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
 
   const [form, setForm] = useState({
     name: hostel.name,
+    ownerPhone: (hostel.ownerPhone || "").replace(/\D/g, "").slice(-10),
     type: hostel.type,
     gender: hostel.gender,
     city: hostel.city,
@@ -42,6 +44,7 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
     try {
       await updateHostelDetails(hostel.id, {
         name: form.name,
+        ownerPhone: form.ownerPhone,
         type: form.type,
         gender: form.gender,
         city: form.city,
@@ -105,6 +108,29 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-cyan-500 focus:bg-white outline-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                  Owner Phone Number
+                </label>
+                <div className="flex gap-2">
+                  <div className="flex items-center justify-center px-3.5 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded-xl select-none">
+                    +91
+                  </div>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[6-9]\d{9}"
+                    maxLength={10}
+                    value={form.ownerPhone}
+                    onChange={(e) =>
+                      setForm({ ...form, ownerPhone: e.target.value.replace(/\D/g, "").slice(0, 10) })
+                    }
+                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-cyan-500 focus:bg-white outline-none"
+                    placeholder="9876543210"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

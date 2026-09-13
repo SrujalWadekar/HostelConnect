@@ -25,7 +25,6 @@ enum Role {
   MANAGER
 }
 
-// 2. The User Model
 model User {
   id              String           @id @default(cuid())
   name            String?
@@ -33,8 +32,8 @@ model User {
   emailVerified   DateTime?
   image           String?
   role            Role             @default(STUDENT)
+  ownerPhone      String?
   createdAt       DateTime         @default(now())
-
   // Relations
   hostels         Hostel[]
   bookingRequests BookingRequest[]
@@ -45,6 +44,8 @@ model User {
 model Hostel {
   id            String         @id @default(cuid())
   name          String
+  ownerName     String?
+  ownerPhone    String?
   type          PropertyType   @default(HOSTEL)
   gender        GenderAllowed  @default(ANY)
   city          String

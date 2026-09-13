@@ -225,7 +225,7 @@ export default async function ManagerDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4">
         {/* Left Column: Create Listing Form (Sticky) */}
         <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-6">
-          <AddHostelForm />
+                    <AddHostelForm defaultOwnerPhone={user?.ownerPhone || ""} />
         </div>
 
         {/* Right Column: Inquiries & Listed Accommodations */}

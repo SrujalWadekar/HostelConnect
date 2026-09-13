@@ -3,7 +3,7 @@
 import { createHostel } from "@/app/actions/hostel";
 import { useState, useRef } from "react";
 
-export default function AddHostelForm() {
+export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwnerPhone?: string }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [step, setStep] = useState<number>(1);
@@ -16,7 +16,6 @@ export default function AddHostelForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // Final safety net: validate step 3 too, in case someone reaches submit with gaps
     const missing = getMissingFields(3);
     if (missing.length > 0) {
       setValidationModal(missing);
@@ -47,7 +46,6 @@ export default function AddHostelForm() {
     }
   }
 
-  // Returns a list of human-readable field names that are empty/invalid for a given step
   function getMissingFields(targetStep: number): string[] {
     if (!formRef.current) return [];
     const data = new FormData(formRef.current);
@@ -55,6 +53,7 @@ export default function AddHostelForm() {
 
     if (targetStep === 1) {
       if (!data.get("name")?.toString().trim()) missing.push("Property Name");
+      if (!data.get("ownerPhone")?.toString().trim()) missing.push("Owner Phone Number");
     }
 
     if (targetStep === 2) {
@@ -93,7 +92,6 @@ export default function AddHostelForm() {
         onSubmit={handleSubmit}
         className="space-y-6 bg-white p-6 md:p-8 rounded-[2rem] border border-cyan-900/10 shadow-xl shadow-cyan-950/5 relative overflow-hidden"
       >
-        {/* Header & Progress indicator */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-5">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">List Property</h2>
@@ -108,11 +106,10 @@ export default function AddHostelForm() {
 
         {statusMessage && (
           <div
-            className={`p-4 text-sm font-bold rounded-xl border flex items-center gap-2 ${
-              statusMessage.type === "success"
+            className={`p-4 text-sm font-bold rounded-xl border flex items-center gap-2 ${statusMessage.type === "success"
                 ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                 : "bg-rose-50 text-rose-800 border-rose-200"
-            }`}
+              }`}
           >
             <span>{statusMessage.type === "success" ? "✓" : "⚠"}</span>
             <span>{statusMessage.text}</span>
@@ -129,6 +126,36 @@ export default function AddHostelForm() {
               className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
               placeholder="e.g. Royal Heights Living"
             />
+          </div>
+          <div>
+            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">
+              Owner Phone Number
+              {defaultOwnerPhone && (
+                <span className="ml-1.5 text-cyan-600 normal-case font-semibold text-[10px]">(saved from your profile)</span>
+              )}
+            </label>
+            <div className="flex gap-2">
+              <div className="flex items-center justify-center px-4 py-3 text-sm font-bold text-slate-600 bg-slate-100 border border-slate-200 rounded-xl select-none">
+                +91
+              </div>
+              <input
+                name="ownerPhone"
+                type="tel"
+                inputMode="numeric"
+                required={step === 1}
+                defaultValue={defaultOwnerPhone}
+                pattern="[6-9]\d{9}"
+                maxLength={10}
+                onInput={(e) => {
+                  e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "").slice(0, 10);
+                }}
+                className="flex-1 px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
+                placeholder="9876543210"
+              />
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1.5">
+              Saved once and auto-filled for future listings — editable per property.
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -226,7 +253,6 @@ export default function AddHostelForm() {
           )}
         </div>
 
-        {/* Navigation Footer */}
         <div className="flex gap-3 pt-2">
           {step > 1 && (
             <button
@@ -258,7 +284,6 @@ export default function AddHostelForm() {
         </div>
       </form>
 
-      {/* VALIDATION POPUP MODAL */}
       {validationModal && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
