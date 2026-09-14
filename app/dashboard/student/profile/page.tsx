@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth"; // <-- Must be from @/lib/auth
 import { redirect } from "next/navigation";
 import Link from "next/link";
+
 export default async function StudentProfilePage() {
   const session = await getServerSession(authOptions);
 
@@ -13,7 +14,7 @@ export default async function StudentProfilePage() {
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: {
-      bookingRequests: { // <-- Fixed relation name
+      bookingRequests: {
         include: {
           hostel: true,
         },
@@ -32,7 +33,6 @@ export default async function StudentProfilePage() {
     redirect("/dashboard/manager/profile");
   }
 
-  // Fixed array references below
   const confirmedBookings = user.bookingRequests.filter(
     (booking) => booking.status === "CONFIRMED"
   );
@@ -70,7 +70,7 @@ export default async function StudentProfilePage() {
 
   return (
     <div className="min-h-screen space-y-10 bg-[#ecfeff] p-4 pb-20 font-sans text-[#020617] md:p-10">
-      <div>
+      <div className="dash-fade-up">
         <Link
           href="/dashboard/student"
           className="mb-2 inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-cyan-800 transition hover:text-cyan-950"
@@ -83,27 +83,25 @@ export default async function StudentProfilePage() {
         </h1>
       </div>
 
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-[#020617] p-8 text-white shadow-2xl shadow-cyan-900/20 md:p-10">
+      {/* Identity Card — role-themed badge, no Google photo */}
+      <div className="dash-fade-up dash-delay-1 relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-blue-950 to-cyan-900 px-6 py-6 text-white shadow-2xl shadow-cyan-900/20 md:px-10 md:py-8">
         <div className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full bg-cyan-500 opacity-20 blur-[120px]" />
         <div className="pointer-events-none absolute -bottom-10 -left-10 h-64 w-64 rounded-full bg-blue-600 opacity-20 blur-[100px]" />
 
         <div className="relative z-10 flex flex-col items-center justify-between gap-8 md:flex-row">
-          <div className="flex flex-col items-center gap-8 md:flex-row">
-            {user.image ? (
-              <img
-                src={user.image}
-                alt={user.name || "Student"}
-                className="h-32 w-32 rounded-[2rem] border-4 border-cyan-400/30 object-cover shadow-[0_0_30px_rgba(34,211,238,0.2)]"
-              />
-            ) : (
-              <div className="flex h-32 w-32 items-center justify-center rounded-[2rem] border-4 border-white/10 bg-gradient-to-br from-cyan-400 to-blue-600 text-5xl font-black text-white shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+          <div className="flex flex-col items-center gap-6 md:flex-row md:gap-8">
+            <div className="relative h-24 w-24 md:h-28 md:w-28 rounded-[1.75rem] bg-gradient-to-br from-cyan-400 to-blue-600 p-[3px] shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+              <div className="flex h-full w-full items-center justify-center rounded-[1.5rem] bg-[#020617] text-4xl font-black text-white">
                 {user.name?.charAt(0).toUpperCase() || "S"}
               </div>
-            )}
+              <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-[#020617] text-sm ring-2 ring-[#020617]">
+                🎓
+              </span>
+            </div>
 
             <div className="text-center md:text-left">
               <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-400">
-                Verified Student
+                Student Portal
               </div>
 
               <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">
@@ -129,7 +127,7 @@ export default async function StudentProfilePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="dash-fade-up dash-delay-1 relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
           <div className="absolute left-0 top-0 h-full w-2 bg-emerald-500" />
 
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -145,7 +143,7 @@ export default async function StudentProfilePage() {
           </p>
         </div>
 
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="dash-fade-up dash-delay-2 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
             Pending Requests
           </p>
@@ -159,7 +157,7 @@ export default async function StudentProfilePage() {
           </p>
         </div>
 
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="dash-fade-up dash-delay-3 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm hover:shadow-lg transition-shadow duration-300">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
             Rejected Requests
           </p>
@@ -176,7 +174,7 @@ export default async function StudentProfilePage() {
 
       <div
         id="history"
-        className="scroll-mt-24 overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8"
+        className="dash-fade-up scroll-mt-24 overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8"
       >
         <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
@@ -197,7 +195,7 @@ export default async function StudentProfilePage() {
           </Link>
         </div>
 
-        {user.bookingRequests.length === 0 ? ( // <-- Fixed length check
+        {user.bookingRequests.length === 0 ? (
           <div className="rounded-2xl border border-slate-100 bg-slate-50 py-12 text-center">
             <span className="text-4xl">🏠</span>
 
@@ -230,7 +228,7 @@ export default async function StudentProfilePage() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {user.bookingRequests.map((booking) => ( // <-- Fixed map function
+                {user.bookingRequests.map((booking) => (
                   <tr
                     key={booking.id}
                     className="transition hover:bg-cyan-50/50"

@@ -72,7 +72,7 @@ export default async function ManagerProfilePage() {
     select: {
       id: true,
       name: true,
-      ownerName: true,
+      ownerPhone: true,
       type: true,
       gender: true,
       city: true,
@@ -146,7 +146,7 @@ export default async function ManagerProfilePage() {
     <div className="min-h-screen bg-[#ecfeff] text-[#020617] p-4 md:p-10 space-y-8 pb-20 font-sans">
 
       {/* 1. Header Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="dash-fade-up flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <Link
             href="/dashboard/manager"
@@ -163,36 +163,33 @@ export default async function ManagerProfilePage() {
         </div>
 
         <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-700 font-bold">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 font-bold">
             🏢
           </div>
           <div>
             <span className="text-[10px] font-bold uppercase text-slate-400 block">Portfolio Efficiency</span>
-            <span className="text-sm font-black text-cyan-700">{portfolioEfficiency}%</span>
+            <span className="text-sm font-black text-amber-600">{portfolioEfficiency}%</span>
           </div>
         </div>
       </div>
 
-      {/* 2. Manager Identity Card */}
-      <div className="bg-[#020617] rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl shadow-cyan-900/20 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full bg-cyan-500 opacity-20 blur-[120px]" />
+      {/* 2. Manager Identity Card — role-themed badge, no Google photo */}
+      <div className="dash-fade-up dash-delay-1 bg-gradient-to-br from-slate-900 via-blue-950 to-cyan-900 rounded-[2.5rem] px-6 py-6 md:px-10 md:py-8 text-white shadow-2xl shadow-cyan-900/20 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full bg-amber-500 opacity-10 blur-[120px]" />
 
         <div className="flex items-center gap-5 relative z-10">
-          {user.image ? (
-            <img
-              src={user.image}
-              alt={user.name || "Manager"}
-              className="w-20 h-20 rounded-2xl object-cover ring-4 ring-cyan-400/30"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-3xl font-black text-white flex items-center justify-center shadow-lg">
+          <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 p-[3px] shadow-lg shadow-amber-900/40">
+            <div className="flex h-full w-full items-center justify-center rounded-[0.9rem] bg-[#020617] text-2xl md:text-3xl font-black text-white">
               {user.name?.[0]?.toUpperCase() || "M"}
             </div>
-          )}
+            <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#020617] text-xs ring-2 ring-[#020617]">
+              🏢
+            </span>
+          </div>
 
           <div>
-            <div className="inline-block text-[10px] font-black uppercase tracking-widest text-[#020617] bg-cyan-400 px-3 py-0.5 rounded-full mb-1.5 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-              Verified Host / Manager
+            <div className="inline-block text-[10px] font-black uppercase tracking-widest text-[#020617] bg-amber-400 px-3 py-0.5 rounded-full mb-1.5 shadow-[0_0_15px_rgba(251,191,36,0.4)]">
+              Manager Portal
             </div>
             <h2 className="text-2xl md:text-3xl font-black">{user.name || "Manager"}</h2>
             <p className="text-xs text-cyan-200/70 font-mono mt-0.5">{user.email}</p>
@@ -210,7 +207,7 @@ export default async function ManagerProfilePage() {
           </div>
           <div className="text-center px-3 border-l border-white/10">
             <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-200 block">Vacant Beds</span>
-            <span className="text-2xl font-black text-cyan-300 mt-1 block">{totalVacantBeds}</span>
+            <span className="text-2xl font-black text-amber-300 mt-1 block">{totalVacantBeds}</span>
           </div>
         </div>
       </div>
@@ -243,7 +240,7 @@ export default async function ManagerProfilePage() {
             {propertyMetrics.map((hostel) => (
               <div
                 key={hostel.id}
-                className="bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 shadow-sm space-y-6 flex flex-col justify-between"
+                className="dash-fade-up bg-white rounded-[2rem] border border-slate-200 p-6 md:p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 space-y-6 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   {/* Property Badges & Title */}
@@ -258,6 +255,11 @@ export default async function ManagerProfilePage() {
                         </span>
                       </div>
                       <h3 className="text-2xl font-black text-slate-900 tracking-tight">{hostel.name}</h3>
+                      {hostel.ownerPhone && (
+                        <p className="text-[11px] font-mono text-slate-400 mt-1">
+                          Owner: +91 {hostel.ownerPhone}
+                        </p>
+                      )}
                     </div>
 
                     <EditHostelModal hostel={hostel} />
@@ -298,27 +300,27 @@ export default async function ManagerProfilePage() {
       <section className="space-y-4 pt-4">
         <h2 className="text-2xl font-black text-slate-900 tracking-tight">Financial & Portfolio Analytics</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden">
+          <div className="dash-fade-up dash-delay-1 bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300 relative overflow-hidden">
             <div className="w-2 h-full bg-emerald-500 absolute top-0 left-0"></div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Monthly Yield</p>
             <p className="text-3xl font-black text-emerald-600 mt-2">{formatINR(actualRevenue)}</p>
             <p className="text-xs text-slate-500 mt-2">Realized from confirmed student beds</p>
           </div>
 
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+          <div className="dash-fade-up dash-delay-2 bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Max Potential Gross</p>
             <p className="text-3xl font-black text-slate-900 mt-2">{formatINR(maxPotentialRevenue)}</p>
             <p className="text-xs text-slate-500 mt-2">Estimated yield at 100% capacity</p>
           </div>
 
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden">
+          <div className="dash-fade-up dash-delay-3 bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300 relative overflow-hidden">
             <div className="w-2 h-full bg-rose-500 absolute top-0 left-0"></div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Monthly Vacancy Loss</p>
             <p className="text-3xl font-black text-rose-600 mt-2">{formatINR(totalVacancyLoss)}</p>
             <p className="text-xs text-rose-700/80 mt-2 font-medium">Uncollected from {totalVacantBeds} empty beds</p>
           </div>
 
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+          <div className="dash-fade-up dash-delay-4 bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-lg transition-shadow duration-300">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Bed Utilization</p>
             <p className="text-3xl font-black text-cyan-800 mt-2">
               {totalOccupiedBeds} <span className="text-base text-slate-400 font-semibold">/ {totalBedsCapacity}</span>

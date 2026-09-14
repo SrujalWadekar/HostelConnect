@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [userType, setUserType] = useState<"STUDENT" | "MANAGER">("STUDENT");
 
   const handleGoogleSignIn = () => {
+    document.cookie = `role_intent=${userType}; path=/; max-age=300`;
     const callbackUrl =
       userType === "MANAGER" ? "/dashboard/manager" : "/dashboard/student";
 
@@ -59,11 +60,10 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setUserType("STUDENT")}
-                className={`group rounded-2xl border-2 p-4 text-left transition-all duration-300 ${
-                  userType === "STUDENT"
+                className={`group rounded-2xl border-2 p-4 text-left transition-all duration-300 ${userType === "STUDENT"
                     ? "border-cyan-500 bg-cyan-50 shadow-lg shadow-cyan-100"
                     : "border-slate-200 bg-white hover:-translate-y-1 hover:border-cyan-300 hover:shadow-md"
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="text-2xl transition-transform duration-300 group-hover:scale-110">🎓</div>
@@ -78,11 +78,10 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setUserType("MANAGER")}
-                className={`group rounded-2xl border-2 p-4 text-left transition-all duration-300 ${
-                  userType === "MANAGER"
+                className={`group rounded-2xl border-2 p-4 text-left transition-all duration-300 ${userType === "MANAGER"
                     ? "border-cyan-500 bg-cyan-50 shadow-lg shadow-cyan-100"
                     : "border-slate-200 bg-white hover:-translate-y-1 hover:border-cyan-300 hover:shadow-md"
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="text-2xl transition-transform duration-300 group-hover:scale-110">🏠</div>

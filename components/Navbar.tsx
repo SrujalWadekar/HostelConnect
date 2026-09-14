@@ -3,11 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
-  const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -20,8 +18,7 @@ export default function Navbar() {
       }
     | undefined;
 
-  const isManager =
-    user?.role?.toUpperCase() === "MANAGER" || pathname.startsWith("/dashboard/manager");
+  const isManager = user?.role?.toUpperCase() === "MANAGER";
 
   const profilePath = isManager
     ? "/dashboard/manager/profile"
@@ -31,7 +28,31 @@ export default function Navbar() {
     ? "/dashboard/manager"
     : "/dashboard/student";
 
-  // Close dropdown when clicking outside
+  // Role-specific theme so each portal feels distinct
+  const theme = isManager
+    ? {
+        label: "Manager Portal",
+        icon: "🏢",
+        gradient: "from-amber-400 to-orange-500",
+        ring: "ring-amber-500/50",
+        accentText: "text-amber-400",
+        accentBg: "bg-amber-500/10",
+        accentBorder: "border-amber-500/20",
+        hoverBorder: "hover:border-amber-500/40",
+        glow: "shadow-amber-900/40",
+      }
+    : {
+        label: "Student Portal",
+        icon: "🎓",
+        gradient: "from-cyan-400 to-blue-600",
+        ring: "ring-cyan-500/50",
+        accentText: "text-cyan-400",
+        accentBg: "bg-cyan-500/10",
+        accentBorder: "border-cyan-500/20",
+        hoverBorder: "hover:border-cyan-500/40",
+        glow: "shadow-cyan-900/40",
+      };
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -79,34 +100,30 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setDropdownOpen((prev) => !prev)}
-                  className="flex cursor-pointer items-center gap-2 sm:gap-3 rounded-2xl border border-cyan-500/15 bg-white/[0.04] p-1.5 pl-2 sm:pl-3.5 pr-2 transition-all hover:border-cyan-500/40 hover:bg-white/[0.08]"
+                  className={`flex cursor-pointer items-center gap-2 sm:gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-1.5 pl-2 sm:pl-3.5 pr-2 transition-all hover:bg-white/[0.08] ${theme.hoverBorder}`}
                 >
                   <div className="hidden flex-col items-end sm:flex">
                     <span className="text-sm font-bold tracking-wide text-white">
                       {user?.name?.split(" ")[0] || "User"}
                     </span>
 
-                    <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${theme.accentText}`}>
                       {isManager ? "Manager" : "Student"}
                     </span>
                   </div>
 
-                  {user?.image ? (
-                    <img
-                      src={user.image}
-                      alt="Profile"
-                      className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover ring-2 ring-cyan-500/50 shadow-lg shadow-cyan-900/40"
-                    />
-                  ) : (
-                    <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gradient-to-tr from-cyan-500 to-emerald-400 p-[2px] shadow-lg shadow-cyan-900/40">
-                      <div className="flex h-full w-full items-center justify-center rounded-full bg-[#020617] text-sm font-bold text-white">
-                        {user?.name?.[0]?.toUpperCase() || "U"}
-                      </div>
+                  {/* Role-styled avatar badge — no profile photo */}
+                  <div className={`relative h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br ${theme.gradient} p-[2px] shadow-lg ${theme.glow}`}>
+                    <div className="flex h-full w-full items-center justify-center rounded-full bg-[#020617] text-sm font-black text-white">
+                      {user?.name?.[0]?.toUpperCase() || "U"}
                     </div>
-                  )}
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#020617] text-[9px] ring-2 ring-[#020617]">
+                      {theme.icon}
+                    </span>
+                  </div>
 
                   <svg
-                    className={`ml-0.5 h-4 w-4 text-cyan-400 transition-transform duration-200 ${
+                    className={`ml-0.5 h-4 w-4 ${theme.accentText} transition-transform duration-200 ${
                       dropdownOpen ? "rotate-180" : ""
                     }`}
                     fill="none"
@@ -124,55 +141,82 @@ export default function Navbar() {
 
                 {/* Dropdown Menu */}
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-64 rounded-2xl border border-cyan-500/30 bg-[#020617] p-3 shadow-2xl shadow-cyan-950/80 animate-in fade-in zoom-in-95">
-                    <div className="mb-2 rounded-xl border border-cyan-500/20 bg-cyan-950/40 p-3">
-                      <p className="truncate text-xs font-bold text-white">
-                        {user?.name}
-                      </p>
-
-                      <p className="mt-0.5 truncate font-mono text-[11px] text-cyan-300/60">
-                        {user?.email}
-                      </p>
+                  <div className="absolute right-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-72 rounded-2xl border border-white/10 bg-[#020617] shadow-2xl shadow-cyan-950/80 animate-in fade-in zoom-in-95 overflow-hidden">
+                    {/* Header — role-tinted banner */}
+                    <div className={`relative p-4 bg-gradient-to-br ${theme.gradient} overflow-hidden`}>
+                      <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+                      <div className="relative flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#020617]/30 backdrop-blur-sm text-lg font-black text-white border border-white/20">
+                          {user?.name?.[0]?.toUpperCase() || "U"}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-white">{user?.name}</p>
+                          <p className="truncate text-[11px] font-mono text-white/70">{user?.email}</p>
+                        </div>
+                      </div>
+                      <div className="relative mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#020617]/40 backdrop-blur-sm px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white border border-white/20">
+                        <span>{theme.icon}</span>
+                        {theme.label}
+                      </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <Link
+                    <div className="p-3 space-y-1">
+                                            <Link
                         href={dashboardPath}
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 transition-all hover:bg-cyan-500/15 hover:text-white"
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 transition-all hover:text-white ${
+                          isManager ? "hover:bg-amber-500/10" : "hover:bg-cyan-500/10"
+                        }`}
                       >
-                        <span className="text-base">🎛️</span>
+                        <span
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg text-base border ${
+                            isManager
+                              ? "bg-amber-500/10 border-amber-500/20"
+                              : "bg-cyan-500/10 border-cyan-500/20"
+                          }`}
+                        >
+                          🎛️
+                        </span>
                         <div>
                           <p className="leading-tight">Dashboard</p>
-                          <p className="text-[10px] font-normal text-slate-400">
-                            Main workspace
-                          </p>
+                          <p className="text-[10px] font-normal text-slate-400">Main workspace</p>
                         </div>
                       </Link>
 
                       <Link
                         href={profilePath}
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 transition-all hover:bg-cyan-500/15 hover:text-white"
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 transition-all hover:text-white ${
+                          isManager ? "hover:bg-amber-500/10" : "hover:bg-cyan-500/10"
+                        }`}
                       >
-                        <span className="text-base">👤</span>
+                        <span
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg text-base border ${
+                            isManager
+                              ? "bg-amber-500/10 border-amber-500/20"
+                              : "bg-cyan-500/10 border-cyan-500/20"
+                          }`}
+                        >
+                          {isManager ? "📊" : "🛏️"}
+                        </span>
                         <div>
                           <p className="leading-tight">My Profile</p>
                           <p className="text-[10px] font-normal text-slate-400">
-                            {isManager ? "Portfolio & Earnings" : "Stays & Requests"}
+                            {isManager ? "Portfolio & earnings" : "Stays & requests"}
                           </p>
                         </div>
-                      </Link>
+                      </Link> 
                     </div>
 
-                    {/* Sign Out */}
-                    <div className="mt-2 border-t border-cyan-950/60 pt-2">
+                    <div className="border-t border-white/10 p-3">
                       <button
                         type="button"
                         onClick={() => signOut({ callbackUrl: "/login" })}
-                        className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
+                        className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
                       >
-                        <span className="text-base">🚪</span>
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 border border-rose-500/20 text-base">
+                          🚪
+                        </span>
                         Sign Out
                       </button>
                     </div>
@@ -200,4 +244,4 @@ export default function Navbar() {
       </div>
     </nav>
   );
-}
+} 

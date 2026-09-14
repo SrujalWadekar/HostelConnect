@@ -9,7 +9,8 @@ import { useState } from "react";
 export default function SignupPage() {
   const [role, setRole] = useState<"STUDENT" | "MANAGER">("STUDENT");
 
-  const handleGoogleSignUp = () => {
+    const handleGoogleSignUp = () => {
+    document.cookie = `role_intent=${role}; path=/; max-age=300`;
     const callbackUrl =
       role === "MANAGER" ? "/dashboard/manager" : "/dashboard/student";
     signIn("google", { callbackUrl });

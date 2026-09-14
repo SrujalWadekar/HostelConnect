@@ -269,3 +269,21 @@ export async function addReview(hostelId: string, rating: number, comment?: stri
 
   return { success: true };
 }
+export async function switchAccountRole() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) throw new Error("User not found");
+
+  const newRole = user.role === "MANAGER" ? "STUDENT" : "MANAGER";
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { role: newRole },
+  });
+
+  return { success: true, newRole };
+}
