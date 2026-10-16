@@ -94,12 +94,19 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-5">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">List Property</h2>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">List Property</h2>
             <p className="text-xs font-semibold text-slate-500 mt-1">Step {step} of 3</p>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1.5 items-center">
             {[1, 2, 3].map((i) => (
-              <div key={i} className={`h-2 rounded-full transition-all duration-300 ${step >= i ? "w-6 bg-cyan-500" : "w-2 bg-slate-200"}`}></div>
+              <div
+                key={i}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  step >= i
+                    ? "w-7 bg-gradient-to-r from-amber-500 to-orange-500 shadow-sm shadow-orange-500/30"
+                    : "w-2.5 bg-slate-200"
+                }`}
+              />
             ))}
           </div>
         </div>
@@ -119,16 +126,16 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
         {/* STEP 1: Basic Details */}
         <div className={step === 1 ? "space-y-4 block animate-in fade-in slide-in-from-right-4" : "hidden"}>
           <div>
-            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Property Name</label>
+            <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Property Name</label>
             <input
               name="name"
               required={step === 1}
-              className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
+              className="w-full px-4 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
               placeholder="e.g. Royal Heights Living"
             />
           </div>
           <div>
-            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">
+            <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
               Owner Phone Number
               {defaultOwnerPhone && (
                 <span className="ml-1.5 text-cyan-600 normal-case font-semibold text-[10px]">(saved from your profile)</span>
@@ -149,7 +156,7 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
                 onInput={(e) => {
                   e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "").slice(0, 10);
                 }}
-                className="flex-1 px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
+                className="flex-1 px-4 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
                 placeholder="9876543210"
               />
             </div>
@@ -157,22 +164,48 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
               Saved once and auto-filled for future listings — editable per property.
             </p>
           </div>
+
+          {/* Aadhaar Number */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+              Aadhaar Number
+              <span className="ml-1.5 text-cyan-600 normal-case font-semibold text-[10px]">(for property verification)</span>
+            </label>
+            <input
+              name="aadhaarNumber"
+              type="text"
+              inputMode="numeric"
+              maxLength={14}
+              onInput={(e) => {
+                // Auto-format as XXXX-XXXX-XXXX while typing
+                const raw = e.currentTarget.value.replace(/\D/g, "").slice(0, 12);
+                const formatted = raw.match(/.{1,4}/g)?.join("-") ?? raw;
+                e.currentTarget.value = formatted;
+              }}
+              className="w-full px-4 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none tracking-widest"
+              placeholder="XXXX-XXXX-XXXX"
+            />
+            <p className="text-[10px] text-slate-400 mt-1.5">
+              12-digit Aadhaar number. Auto-formatted — spaces and dashes accepted. Kept secure and not shown publicly.
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Category</label>
+              <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Category</label>
               <select
                 name="type"
-                className="w-full px-3 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none cursor-pointer"
+                className="w-full px-3 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none cursor-pointer"
               >
                 <option value="HOSTEL">Hostel</option>
                 <option value="PG">PG (Paying Guest)</option>
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Gender</label>
+              <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Gender</label>
               <select
                 name="gender"
-                className="w-full px-3 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none cursor-pointer"
+                className="w-full px-3 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none cursor-pointer"
               >
                 <option value="ANY">Co-ed / Any</option>
                 <option value="MALE">Male Only</option>
@@ -185,21 +218,21 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
         {/* STEP 2: Location */}
         <div className={step === 2 ? "space-y-4 block animate-in fade-in slide-in-from-right-4" : "hidden"}>
           <div>
-            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">City</label>
+            <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">City</label>
             <input
               name="city"
               required={step === 2}
-              className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
+              className="w-full px-4 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none"
               placeholder="e.g. Pune"
             />
           </div>
           <div>
-            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Campus / Street Address</label>
+            <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Campus / Street Address</label>
             <textarea
               name="address"
               required={step === 2}
               rows={3}
-              className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none resize-none"
+              className="w-full px-4 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 transition-all outline-none resize-none"
               placeholder="e.g. Near PICT Campus, Dhankawadi"
             />
           </div>
@@ -209,46 +242,49 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
         <div className={step === 3 ? "space-y-4 block animate-in fade-in slide-in-from-right-4" : "hidden"}>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Daily (₹)</label>
+              <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Daily (₹)</label>
               <input
                 name="dailyPrice"
                 type="number"
                 required={step === 3}
                 min="0"
                 onChange={(e) => setDailyVal(Number(e.target.value) || 0)}
-                className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
+                className="w-full px-4 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
                 placeholder="500"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Monthly (₹)</label>
+              <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Monthly (₹)</label>
               <input
                 name="monthlyPrice"
                 type="number"
                 required={step === 3}
                 min="0"
-                className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
+                className="w-full px-4 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
                 placeholder="8000"
               />
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Beds</label>
+            <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Total Beds</label>
             <input
               name="availableBeds"
               type="number"
               required={step === 3}
               min="1"
               onChange={(e) => setBedsVal(Number(e.target.value) || 1)}
-              className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
+              className="w-full px-4 py-3 text-sm font-semibold border border-slate-200 rounded-xl bg-slate-50/60 focus:bg-white focus:border-cyan-500 outline-none"
               placeholder="10"
             />
           </div>
 
           {dailyVal > 0 && (
-            <div className="p-4 mt-2 bg-[#ecfeff] border border-cyan-200/60 rounded-xl flex items-center justify-between text-sm text-cyan-900 font-bold">
-              <span>Est. Max Daily Yield:</span>
-              <span>₹{(dailyVal * bedsVal).toLocaleString()} / day</span>
+            <div className="p-4 mt-2 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 border border-emerald-300/60 rounded-2xl flex items-center justify-between text-sm text-emerald-950 font-bold shadow-sm">
+              <span className="flex items-center gap-1.5">
+                <span>💰</span>
+                <span>Est. Max Daily Yield:</span>
+              </span>
+              <span className="text-base font-bold text-emerald-700">₹{(dailyVal * bedsVal).toLocaleString()} / day</span>
             </div>
           )}
         </div>
@@ -258,7 +294,7 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
             <button
               type="button"
               onClick={prevStep}
-              className="w-1/3 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm rounded-xl transition-all active:scale-[0.98]"
+              className="w-1/3 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-2xl transition-all active:scale-[0.98] cursor-pointer"
             >
               Back
             </button>
@@ -268,17 +304,17 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
             <button
               type="button"
               onClick={nextStep}
-              className="flex-1 py-3.5 bg-[#020617] hover:bg-cyan-950 text-white font-black text-sm rounded-xl transition-all shadow-md active:scale-[0.98]"
+              className="flex-1 py-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-[#1e1b4b] hover:from-slate-800 hover:to-indigo-950 text-white font-bold text-sm rounded-2xl transition-all shadow-md active:scale-[0.98] cursor-pointer"
             >
-              Next Step
+              Continue to Step {step + 1} →
             </button>
           ) : (
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3.5 bg-gradient-to-r from-cyan-600 to-emerald-500 hover:from-cyan-500 hover:to-emerald-400 text-white font-black text-sm rounded-xl transition-all shadow-lg shadow-cyan-900/20 active:scale-[0.98] disabled:opacity-50"
+              className="flex-1 py-3.5 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-orange-500/25 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
             >
-              {loading ? "Publishing..." : "Publish Accommodation"}
+              {loading ? "Publishing Listing..." : "Publish Accommodation →"}
             </button>
           )}
         </div>
@@ -296,7 +332,7 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-2xl mb-4">
               ⚠️
             </div>
-            <h3 className="text-lg font-black text-slate-900">Missing details</h3>
+            <h3 className="text-lg font-bold text-slate-900">Missing details</h3>
             <p className="text-sm text-slate-500 mt-1">
               Please fill in the following before continuing:
             </p>
@@ -311,7 +347,7 @@ export default function AddHostelForm({ defaultOwnerPhone = "" }: { defaultOwner
             <button
               type="button"
               onClick={() => setValidationModal(null)}
-              className="mt-6 w-full py-3 bg-[#020617] hover:bg-cyan-950 text-white font-black text-sm rounded-xl transition-all active:scale-[0.98]"
+              className="mt-6 w-full py-3 bg-[#020617] hover:bg-cyan-950 text-white font-bold text-sm rounded-xl transition-all active:scale-[0.98]"
             >
               Got it
             </button>

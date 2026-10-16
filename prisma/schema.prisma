@@ -33,6 +33,7 @@ model User {
   image           String?
   role            Role             @default(STUDENT)
   ownerPhone      String?
+  phoneNumber     String?
   createdAt       DateTime         @default(now())
   // Relations
   hostels         Hostel[]
@@ -46,6 +47,7 @@ model Hostel {
   name          String
   ownerName     String?
   ownerPhone    String?
+  aadhaarNumber String?
   type          PropertyType   @default(HOSTEL)
   gender        GenderAllowed  @default(ANY)
   city          String

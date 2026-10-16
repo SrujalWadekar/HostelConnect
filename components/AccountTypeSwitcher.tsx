@@ -28,7 +28,7 @@ export default function AccountTypeSwitcher({ currentRole }: { currentRole: "STU
   return (
     <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Account Type</p>
-      <p className="mt-2 text-lg font-black text-slate-900">
+      <p className="mt-2 text-lg font-bold text-slate-900">
         Currently a {currentRole === "MANAGER" ? "Manager" : "Student"} account
       </p>
 

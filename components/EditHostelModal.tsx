@@ -78,8 +78,8 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
           <div className="bg-white w-full max-w-lg p-6 md:p-8 rounded-[2rem] shadow-2xl border border-slate-100 space-y-5">
             <div className="flex justify-between items-start border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-xl font-black text-slate-900 tracking-tight">Edit Property Details</h3>
-                <p className="text-xs font-semibold text-slate-500 mt-0.5">Update pricing, location, or available beds</p>
+                <h3 className="text-xl font-bold text-slate-900 tracking-tight">Edit Property Details</h3>
+                <p className="text-xs font-medium text-slate-500 mt-0.5">Update pricing, location, or available beds</p>
               </div>
               <button
                 type="button"
@@ -98,7 +98,7 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                   Property Name
                 </label>
                 <input
@@ -106,12 +106,12 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-cyan-500 focus:bg-white outline-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-cyan-500 focus:bg-white outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                   Owner Phone Number
                 </label>
                 <div className="flex gap-2">
@@ -127,7 +127,7 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
                     onChange={(e) =>
                       setForm({ ...form, ownerPhone: e.target.value.replace(/\D/g, "").slice(0, 10) })
                     }
-                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-cyan-500 focus:bg-white outline-none"
+                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-cyan-500 focus:bg-white outline-none"
                     placeholder="9876543210"
                   />
                 </div>
@@ -135,26 +135,26 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     Type
                   </label>
                   <select
                     value={form.type}
                     onChange={(e) => setForm({ ...form, type: e.target.value as PropertyType })}
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700"
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
                   >
                     <option value="HOSTEL">HOSTEL</option>
                     <option value="PG">PG</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     Category
                   </label>
                   <select
                     value={form.gender}
                     onChange={(e) => setForm({ ...form, gender: e.target.value as GenderAllowed })}
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700"
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700"
                   >
                     <option value="ANY">Co-ed (Any)</option>
                     <option value="MALE">Boys Only</option>
@@ -165,7 +165,7 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     City / Area
                   </label>
                   <input
@@ -177,7 +177,7 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     Available Beds
                   </label>
                   <input
@@ -186,13 +186,13 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
                     required
                     value={form.availableBeds}
                     onChange={(e) => setForm({ ...form, availableBeds: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                   Full Address
                 </label>
                 <input
@@ -206,7 +206,7 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     Monthly Rent (₹)
                   </label>
                   <input
@@ -215,11 +215,11 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
                     required
                     value={form.monthlyPrice}
                     onChange={(e) => setForm({ ...form, monthlyPrice: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     Daily Rate (₹)
                   </label>
                   <input
@@ -228,7 +228,7 @@ export default function EditHostelModal({ hostel }: EditHostelModalProps) {
                     required
                     value={form.dailyPrice}
                     onChange={(e) => setForm({ ...form, dailyPrice: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold"
                   />
                 </div>
               </div>

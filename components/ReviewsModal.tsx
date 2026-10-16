@@ -57,7 +57,7 @@ export default function ReviewsModal({
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="text-lg font-black text-slate-900">Reviews</h3>
+            <h3 className="text-lg font-bold text-slate-900">Reviews</h3>
             <p className="text-xs text-slate-500">{hostelName}</p>
           </div>
           <button

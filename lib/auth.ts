@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
     error: "/login",
   },
   callbacks: {
-        async signIn({ user }) {
+    async signIn({ user }) {
       if (!user?.email) return true;
       try {
         let intendedRole: "STUDENT" | "MANAGER" = "STUDENT";
@@ -33,6 +33,7 @@ export const authOptions: NextAuthOptions = {
 
         const existing = await prisma.user.findUnique({
           where: { email: user.email },
+          select: { id: true, role: true },
         });
 
         if (!existing) {
@@ -60,11 +61,14 @@ export const authOptions: NextAuthOptions = {
       }
     },
 
-    async jwt({ token }) {
-      if (token?.email) {
+    async jwt({ token, trigger }) {
+      // Only query DB on initial sign-in or explicit update trigger.
+      // On subsequent requests, role/id are already cached in the JWT.
+      if (token?.email && (trigger === "signIn" || trigger === "signUp" || !token.role)) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { email: token.email },
+            select: { id: true, role: true },
           });
 
           if (dbUser) {

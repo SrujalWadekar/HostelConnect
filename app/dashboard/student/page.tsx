@@ -11,18 +11,35 @@ export default async function StudentDashboardPage() {
     redirect("/login");
   }
 
-  // 1. Fetch the logged-in student's active bookings
+  // 1. Fetch only the logged-in student's active bookings and required fields
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: {
       bookingRequests: {
-        include: { hostel: true },
+        select: {
+          id: true,
+          status: true,
+          hostelId: true,
+          createdAt: true,
+          hostel: {
+            select: {
+              id: true,
+              name: true,
+              type: true,
+              address: true,
+              city: true,
+              monthlyPrice: true,
+              dailyPrice: true,
+              ownerPhone: true,
+            },
+          },
+        },
         orderBy: { createdAt: "desc" },
       },
     },
   });
 
-  // 2. Fetch all properties that have at least 1 bed available, with reviews
+  // 2. Fetch properties that have at least 1 bed available, with reviews
   const availableProperties = await prisma.hostel.findMany({
     where: { availableBeds: { gt: 0 } },
     select: {
@@ -36,6 +53,7 @@ export default async function StudentDashboardPage() {
       monthlyPrice: true,
       availableBeds: true,
       gender: true,
+      aadhaarNumber: true,
       reviews: {
         select: {
           id: true,
@@ -50,20 +68,26 @@ export default async function StudentDashboardPage() {
     },
   });
 
+  const studentBookings = user?.bookingRequests || [];
+  const approvedHostelIds = new Set(
+    studentBookings
+      .filter((b) => b.status === "APPROVED" || b.status === "CONFIRMED")
+      .map((b) => b.hostelId)
+  );
+
   // 3. Enrich each property with rating stats and this student's review eligibility
   const enrichedProperties = availableProperties.map((h) => {
     const reviewCount = h.reviews.length;
     const avgRating =
       reviewCount > 0 ? h.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount : null;
 
-    const hasApprovedBooking = (user?.bookingRequests || []).some(
-      (b) => b.hostelId === h.id && (b.status === "APPROVED" || b.status === "CONFIRMED")
-    );
+    const hasApprovedBooking = approvedHostelIds.has(h.id);
     const hasReviewed = user ? h.reviews.some((r) => r.userId === user.id) : false;
 
     return {
       id: h.id,
       name: h.name,
+      ownerPhone: h.ownerPhone,
       type: h.type,
       city: h.city,
       address: h.address,
@@ -71,6 +95,7 @@ export default async function StudentDashboardPage() {
       monthlyPrice: h.monthlyPrice,
       availableBeds: h.availableBeds,
       gender: h.gender,
+      aadhaarNumber: h.aadhaarNumber,
       avgRating,
       reviewCount,
       canReview: hasApprovedBooking && !hasReviewed,
@@ -78,21 +103,24 @@ export default async function StudentDashboardPage() {
         id: r.id,
         rating: r.rating,
         comment: r.comment,
-        createdAt: r.createdAt,
+        createdAt: r.createdAt.toISOString(),
         reviewerName: r.user?.name || "Student",
       })),
     };
   });
 
-  // 4. Force data serialization to safely pass Prisma objects to a Client Component
-  const safeBookings = JSON.parse(JSON.stringify(user?.bookingRequests || []));
-  const safeProperties = JSON.parse(JSON.stringify(enrichedProperties));
+  // 4. Clean serialized data passed to Client Component
+  const safeBookings = studentBookings.map((b) => ({
+    id: b.id,
+    status: b.status,
+    hostel: b.hostel,
+  }));
 
   return (
     <div className="min-h-screen bg-[#ecfeff]">
       <ClientDashboard
         myBookings={safeBookings}
-        availableProperties={safeProperties}
+        availableProperties={enrichedProperties}
       />
     </div>
   );

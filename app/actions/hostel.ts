@@ -17,6 +17,16 @@ function isValidPhone(phone: string): boolean {
   return /^[6-9]\d{9}$/.test(normalized);
 }
 
+// Strips spaces/dashes from Aadhaar and validates 12-digit format
+function normalizeAadhaar(aadhaar: string): string {
+  return aadhaar.replace(/[\s\-]/g, "");
+}
+
+function isValidAadhaar(aadhaar: string): boolean {
+  const clean = normalizeAadhaar(aadhaar);
+  return /^\d{12}$/.test(clean);
+}
+
 export async function createHostel(formData: FormData) {
   const session = await getServerSession(authOptions);
 
@@ -45,6 +55,8 @@ export async function createHostel(formData: FormData) {
   const enteredOwnerPhone = (formData.get("ownerPhone") as string | null)?.trim();
   const rawOwnerPhone = enteredOwnerPhone || user.ownerPhone || "";
 
+  const enteredAadhaar = (formData.get("aadhaarNumber") as string | null)?.trim();
+
   if (!name || !city || !address || isNaN(dailyPrice) || isNaN(monthlyPrice) || isNaN(availableBeds)) {
     throw new Error("Please provide all required fields with valid numbers.");
   }
@@ -53,12 +65,18 @@ export async function createHostel(formData: FormData) {
     throw new Error("Please provide a valid 10-digit owner phone number.");
   }
 
+  if (enteredAadhaar && !isValidAadhaar(enteredAadhaar)) {
+    throw new Error("Please provide a valid 12-digit Aadhaar number.");
+  }
+
   const ownerPhone = normalizePhone(rawOwnerPhone);
+  const aadhaarNumber = enteredAadhaar ? normalizeAadhaar(enteredAadhaar) : null;
 
   const newHostel = await prisma.hostel.create({
     data: {
       name,
       ownerPhone,
+      aadhaarNumber,
       type,
       city,
       address,
@@ -81,8 +99,98 @@ export async function createHostel(formData: FormData) {
 
   revalidatePath("/dashboard/manager");
   revalidatePath("/dashboard/student");
+  revalidatePath("/");
 
   return { success: true, hostelId: newHostel.id };
+}
+
+export async function updateHostel(formData: FormData) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    throw new Error("Unauthorized: Please sign in to update a listing.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!user) {
+    throw new Error("Manager profile not found in database.");
+  }
+
+  const id = formData.get("id") as string;
+  if (!id) {
+    throw new Error("Hostel ID is required.");
+  }
+
+  const existingHostel = await prisma.hostel.findUnique({
+    where: { id },
+  });
+
+  if (!existingHostel || existingHostel.managerId !== user.id) {
+    throw new Error("Property not found or unauthorized.");
+  }
+
+  const name = formData.get("name") as string;
+  const city = formData.get("city") as string;
+  const address = formData.get("address") as string;
+  const dailyPrice = parseInt(formData.get("dailyPrice") as string, 10);
+  const monthlyPrice = parseInt(formData.get("monthlyPrice") as string, 10);
+  const availableBeds = parseInt(formData.get("availableBeds") as string, 10);
+
+  const type = (formData.get("type") as PropertyType) || existingHostel.type;
+  const gender = (formData.get("gender") as GenderAllowed) || existingHostel.gender;
+
+  const enteredOwnerPhone = (formData.get("ownerPhone") as string | null)?.trim();
+  const rawOwnerPhone = enteredOwnerPhone || existingHostel.ownerPhone || user.ownerPhone || "";
+
+  const enteredAadhaar = (formData.get("aadhaarNumber") as string | null)?.trim();
+
+  if (!name || !city || !address || isNaN(dailyPrice) || isNaN(monthlyPrice) || isNaN(availableBeds)) {
+    throw new Error("Please provide all required fields with valid numbers.");
+  }
+
+  if (!isValidPhone(rawOwnerPhone)) {
+    throw new Error("Please provide a valid 10-digit owner phone number.");
+  }
+
+  if (enteredAadhaar && !isValidAadhaar(enteredAadhaar)) {
+    throw new Error("Please provide a valid 12-digit Aadhaar number.");
+  }
+
+  const ownerPhone = normalizePhone(rawOwnerPhone);
+  const aadhaarNumber = enteredAadhaar ? normalizeAadhaar(enteredAadhaar) : existingHostel.aadhaarNumber;
+
+  const updatedHostel = await prisma.hostel.update({
+    where: { id },
+    data: {
+      name,
+      ownerPhone,
+      aadhaarNumber,
+      type,
+      city,
+      address,
+      dailyPrice,
+      monthlyPrice,
+      availableBeds,
+      gender,
+    },
+  });
+
+  if (enteredOwnerPhone && !user.ownerPhone) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { ownerPhone },
+    });
+  }
+
+  revalidatePath("/dashboard/manager");
+  revalidatePath("/dashboard/manager/profile");
+  revalidatePath("/dashboard/student");
+  revalidatePath("/");
+
+  return { success: true, hostelId: updatedHostel.id };
 }
 
 export type HostelFilters = {
@@ -208,6 +316,7 @@ export async function updateHostelDetails(
   revalidatePath("/dashboard/manager");
   revalidatePath("/dashboard/manager/profile");
   revalidatePath("/dashboard/student");
+  revalidatePath("/");
 
   return { success: true };
 }
@@ -238,6 +347,7 @@ export async function deleteHostel(hostelId: string) {
   revalidatePath("/dashboard/manager");
   revalidatePath("/dashboard/manager/profile");
   revalidatePath("/dashboard/student");
+  revalidatePath("/");
 
   return { success: true };
 }
@@ -286,4 +396,22 @@ export async function switchAccountRole() {
   });
 
   return { success: true, newRole };
+}
+
+export async function saveStudentPhone(phone: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  const clean = phone.replace(/\D/g, "").slice(-10);
+  if (!/^[6-9]\d{9}$/.test(clean)) {
+    throw new Error("Please enter a valid 10-digit Indian mobile number.");
+  }
+
+  await prisma.user.update({
+    where: { email: session.user.email },
+    data: { phoneNumber: clean },
+  });
+
+  revalidatePath("/dashboard/student/profile");
+  return { success: true };
 }
