@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import AddHostelForm from "@/components/AddHostelForm";
+import Link from "next/link";
 import BookingActionButtons from "@/components/BookingActionButtons";
 import DeleteHostelButton from "@/components/DeleteHostelButton";
 import ManagerInboxChatButton from "@/components/ManagerInboxChatButton";
@@ -307,222 +307,247 @@ export default async function ManagerDashboard() {
       </div>
 
       {/* 4. MAIN WORKSPACE */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2">
-        {/* Left Column: Form */}
-        <div className="lg:col-span-5 lg:sticky lg:top-8 space-y-6">
-          <AddHostelForm defaultOwnerPhone={user?.ownerPhone || ""} />
-        </div>
-
-        {/* Right Column: Inquiries & Portfolio */}
-        <div className="lg:col-span-7 space-y-8">
-          {/* Section: Pending Student Applications */}
-          <div className="space-y-3.5">
-            <div className="flex items-center justify-between pb-1">
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Student Inbox</h2>
-                {pendingBookings.length > 0 && (
-                  <span className="text-xs bg-rose-50 text-rose-700 font-semibold px-2.5 py-0.5 rounded-full border border-rose-200">
-                    {pendingBookings.length} New
-                  </span>
-                )}
-              </div>
+      <div className="space-y-8 pt-2">
+        {/* Section: Pending Student Applications / Inbox */}
+        <div className="space-y-3.5">
+          <div className="flex items-center justify-between pb-1">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Student Inbox</h2>
+              {pendingBookings.length > 0 && (
+                <span className="text-xs bg-rose-50 text-rose-700 font-semibold px-2.5 py-0.5 rounded-full border border-rose-200">
+                  {pendingBookings.length} New
+                </span>
+              )}
             </div>
-
-            {pendingBookings.length === 0 ? (
-              <div className="bg-white py-12 px-6 rounded-2xl text-center flex flex-col items-center justify-center border border-slate-200 shadow-sm">
-                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-xl text-emerald-600 mb-2">
-                  ✓
-                </div>
-                <p className="text-slate-900 font-bold text-base">Inbox Zero</p>
-                <p className="text-xs text-slate-500 mt-0.5 max-w-xs font-normal">
-                  All student requests have been processed.
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                {pendingBookings.map((booking: EnrichedBooking) => (
-                  <div
-                    key={booking.id}
-                    className="bg-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-md transition duration-200 border border-slate-200 hover:border-amber-300"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center">
-                          {booking.student?.name?.[0]?.toUpperCase() || "S"}
-                        </div>
-                        <span className="font-bold text-slate-900 text-sm">
-                          {booking.student?.name || "Student User"}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-slate-500 font-normal">
-                        <span>✉️ {booking.student?.email}</span>
-                        <span className="hidden sm:inline text-slate-300">•</span>
-                        {booking.student?.phoneNumber ? (
-                          <a
-                            href={`tel:+91${booking.student.phoneNumber.replace(/\D/g, "").slice(-10)}`}
-                            className="font-mono font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded flex items-center gap-1 hover:underline"
-                            title={`Call student: +91 ${booking.student.phoneNumber}`}
-                          >
-                            <span>📞</span>
-                            <span>+91 {booking.student.phoneNumber.replace(/\D/g, "").slice(-10)}</span>
-                          </a>
-                        ) : (
-                          <span className="text-slate-400 italic text-[11px]">No phone added</span>
-                        )}
-                        <span className="hidden sm:inline text-slate-300">•</span>
-                        <span className="text-cyan-800 font-semibold bg-cyan-50 px-2 py-0.5 rounded">
-                          🏢 {booking.hostelName}
-                        </span>
-                      </div>
-
-                      <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1">
-                        Applied on {formatDate(booking.createdAt)}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <ManagerInboxChatButton
-                        bookingId={booking.id}
-                        studentName={booking.student?.name || "Student User"}
-                        studentPhone={booking.student?.phoneNumber}
-                        hostelName={booking.hostelName}
-                      />
-                      <BookingActionButtons bookingId={booking.id} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+            {pendingBookings.length > 0 && (
+              <Link
+                href="/dashboard/manager/messages"
+                className="text-xs font-semibold text-cyan-700 hover:text-cyan-900 transition flex items-center gap-1"
+              >
+                <span>Open Message Center</span>
+                <span>→</span>
+              </Link>
             )}
           </div>
 
-          {/* Section: Active Accommodations Portfolio */}
-          <div className="space-y-3.5 pt-2">
-            <div className="flex items-center justify-between pb-1">
+          {pendingBookings.length === 0 ? (
+            <div className="bg-white py-10 px-6 rounded-2xl text-center flex flex-col items-center justify-center border border-slate-200 shadow-sm">
+              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-xl text-emerald-600 mb-2">
+                ✓
+              </div>
+              <p className="text-slate-900 font-bold text-base">Inbox Zero</p>
+              <p className="text-xs text-slate-500 mt-0.5 max-w-xs font-normal">
+                All student requests have been processed.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {pendingBookings.map((booking: EnrichedBooking) => (
+                <div
+                  key={booking.id}
+                  className="bg-white p-5 rounded-2xl shadow-sm flex flex-col justify-between gap-4 hover:shadow-md transition duration-200 border border-slate-200 hover:border-amber-300"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center">
+                        {booking.student?.name?.[0]?.toUpperCase() || "S"}
+                      </div>
+                      <span className="font-bold text-slate-900 text-sm">
+                        {booking.student?.name || "Student User"}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-slate-500 font-normal">
+                      <span>✉️ {booking.student?.email}</span>
+                      <span className="hidden sm:inline text-slate-300">•</span>
+                      {booking.student?.phoneNumber ? (
+                        <a
+                          href={`tel:+91${booking.student.phoneNumber.replace(/\D/g, "").slice(-10)}`}
+                          className="font-mono font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded flex items-center gap-1 hover:underline"
+                          title={`Call student: +91 ${booking.student.phoneNumber}`}
+                        >
+                          <span>📞</span>
+                          <span>+91 {booking.student.phoneNumber.replace(/\D/g, "").slice(-10)}</span>
+                        </a>
+                      ) : (
+                        <span className="text-slate-400 italic text-[11px]">No phone added</span>
+                      )}
+                      <span className="hidden sm:inline text-slate-300">•</span>
+                      <span className="text-cyan-800 font-semibold bg-cyan-50 px-2 py-0.5 rounded">
+                        🏢 {booking.hostelName}
+                      </span>
+                    </div>
+
+                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mt-1">
+                      Applied on {formatDate(booking.createdAt)}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                    <ManagerInboxChatButton
+                      bookingId={booking.id}
+                      studentName={booking.student?.name || "Student User"}
+                      studentPhone={booking.student?.phoneNumber}
+                      hostelName={booking.hostelName}
+                    />
+                    <BookingActionButtons bookingId={booking.id} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Section: Active Accommodations Portfolio */}
+        <div className="space-y-4 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+            <div className="flex items-center gap-3">
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Active Portfolio</h2>
               <span className="text-xs font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm">
                 {hostels.length} Listed
               </span>
             </div>
 
-            {hostels.length === 0 ? (
-              <div className="bg-white p-12 rounded-2xl text-center flex flex-col items-center justify-center border border-slate-200 shadow-sm">
-                <span className="text-4xl mb-2">🏡</span>
-                <p className="text-slate-900 font-bold text-base">Build Your Portfolio</p>
-                <p className="text-xs text-slate-500 max-w-sm mt-1 font-normal">
-                  You haven't listed any properties yet. Use the form on the left to publish your first hostel or PG.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {hostels.map((hostel: HostelItem) => {
-                  const occupied = (hostel.bookingRequests || []).filter(
-                    (b: BookingItem) => b.status === "CONFIRMED" || b.status === "APPROVED"
-                  ).length;
-                  const totalBeds = hostel.availableBeds + occupied;
-                  const occupancyPercent =
-                    totalBeds > 0 ? Math.round((occupied / totalBeds) * 100) : 0;
-                  const isFull = hostel.availableBeds === 0;
-                  const isHighDemand = occupancyPercent >= 80 && !isFull;
+            <Link
+              href="/dashboard/manager/listings/new"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs rounded-xl shadow-md transition self-start sm:self-auto"
+            >
+              <span>+ List New Property</span>
+              <span>→</span>
+            </Link>
+          </div>
 
-                  return (
-                    <div
-                      key={hostel.id}
-                      className="dash-fade-up bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between border border-slate-200 hover:border-amber-300"
-                    >
-                      <div>
-                        {/* Badges */}
-                        <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                          <span className="text-[11px] font-semibold text-cyan-800 bg-cyan-50 border border-cyan-200 px-2 py-0.5 rounded">
-                            {hostel.type || "HOSTEL"}
+          {hostels.length === 0 ? (
+            <div className="bg-white p-12 rounded-2xl text-center flex flex-col items-center justify-center border border-slate-200 shadow-sm space-y-3">
+              <span className="text-5xl mb-1">🏡</span>
+              <p className="text-slate-900 font-bold text-lg">Build Your Portfolio</p>
+              <p className="text-xs text-slate-500 max-w-md font-normal leading-relaxed">
+                You haven't listed any properties yet. Use our comprehensive property listing form with sharing matrix, bed inventory, and amenities checklist.
+              </p>
+              <Link
+                href="/dashboard/manager/listings/new"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-md transition"
+              >
+                <span>+ List New Property</span>
+                <span>→</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {hostels.map((hostel: HostelItem) => {
+                const occupied = (hostel.bookingRequests || []).filter(
+                  (b: BookingItem) => b.status === "CONFIRMED" || b.status === "APPROVED"
+                ).length;
+                const totalBeds = hostel.availableBeds + occupied;
+                const occupancyPercent =
+                  totalBeds > 0 ? Math.round((occupied / totalBeds) * 100) : 0;
+                const isFull = hostel.availableBeds === 0;
+                const isHighDemand = occupancyPercent >= 80 && !isFull;
+
+                return (
+                  <div
+                    key={hostel.id}
+                    className="dash-fade-up bg-white p-5 sm:p-6 rounded-2xl shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between border border-slate-200 hover:border-amber-300"
+                  >
+                    <div>
+                      {/* Badges */}
+                      <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                        <span className="text-[11px] font-semibold text-cyan-800 bg-cyan-50 border border-cyan-200 px-2 py-0.5 rounded">
+                          {hostel.type || "HOSTEL"}
+                        </span>
+                        <span className="text-[11px] font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
+                          {hostel.gender === "ANY" ? "Co-ed" : hostel.gender}
+                        </span>
+
+                        {isHighDemand && (
+                          <span className="text-[11px] font-semibold text-orange-700 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded flex items-center gap-1">
+                            <span>🔥</span>
+                            <span>High Demand</span>
                           </span>
-                          <span className="text-[11px] font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
-                            {hostel.gender === "ANY" ? "Co-ed" : hostel.gender}
+                        )}
+
+                        {isFull && (
+                          <span className="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">
+                            Full
                           </span>
+                        )}
 
-                          {isHighDemand && (
-                            <span className="text-[11px] font-semibold text-orange-700 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded flex items-center gap-1">
-                              <span>🔥</span>
-                              <span>High Demand</span>
-                            </span>
-                          )}
-
-                          {isFull && (
-                            <span className="text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">
-                              Full
-                            </span>
-                          )}
-
-                          {hostel.aadhaarNumber && hostel.aadhaarNumber.trim().length >= 12 ? (
-                            <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded flex items-center gap-1" title="Aadhaar Verified Host">
-                              <span>🛡️</span>
-                              <span>Aadhaar Verified</span>
-                            </span>
-                          ) : (
-                            <span className="text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded flex items-center gap-1" title="Aadhaar not submitted">
-                              <span>⚠️</span>
-                              <span>Unverified Host</span>
-                            </span>
-                          )}
-                        </div>
-
-                        <h3 className="font-bold text-lg text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-1">
-                          {hostel.name}
-                        </h3>
-                        <p className="text-xs text-slate-500 mt-1 flex items-start gap-1 line-clamp-2 min-h-[30px] font-normal">
-                          <svg className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <span>{hostel.address}, {hostel.city}</span>
-                        </p>
+                        {hostel.aadhaarNumber && hostel.aadhaarNumber.trim().length >= 12 ? (
+                          <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded flex items-center gap-1" title="Aadhaar Verified Host">
+                            <span>🛡️</span>
+                            <span>Aadhaar Verified</span>
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded flex items-center gap-1" title="Aadhaar not submitted">
+                            <span>⚠️</span>
+                            <span>Unverified Host</span>
+                          </span>
+                        )}
                       </div>
 
-                      {/* Pricing & Occupancy Meter */}
-                      <div className="mt-5 pt-3.5 border-t border-slate-100">
-                        <div className="mb-3">
-                          <div className="flex justify-between text-[11px] font-medium text-slate-500 mb-1">
-                            <span>{hostel.availableBeds} Beds Vacant</span>
-                            <span className={isFull ? "text-rose-600 font-semibold" : "text-emerald-700 font-semibold"}>
-                              {occupancyPercent}% Booked
-                            </span>
-                          </div>
-                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-700 ${
-                                isFull
-                                  ? "bg-rose-500"
-                                  : isHighDemand
-                                  ? "bg-orange-500"
-                                  : "bg-emerald-500"
-                              }`}
-                              style={{ width: `${occupancyPercent}%` }}
-                            />
-                          </div>
-                        </div>
+                      <h3 className="font-bold text-lg text-slate-900 group-hover:text-amber-700 transition-colors line-clamp-1">
+                        {hostel.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1 flex items-start gap-1 line-clamp-2 min-h-[30px] font-normal">
+                        <svg className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>{hostel.address}, {hostel.city}</span>
+                      </p>
+                    </div>
 
-                        <div className="flex items-center justify-between mb-2.5">
-                          <div>
-                            <span className="text-xl font-bold text-slate-900">
-                              {formatINR(hostel.monthlyPrice)}
-                            </span>
-                            <span className="text-xs text-slate-400 font-normal">/mo</span>
-                          </div>
-                          <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-                            {formatINR(hostel.dailyPrice)}/day
+                    {/* Pricing & Occupancy Meter */}
+                    <div className="mt-5 pt-3.5 border-t border-slate-100">
+                      <div className="mb-3">
+                        <div className="flex justify-between text-[11px] font-medium text-slate-500 mb-1">
+                          <span>{hostel.availableBeds} Beds Vacant</span>
+                          <span className={isFull ? "text-rose-600 font-semibold" : "text-emerald-700 font-semibold"}>
+                            {occupancyPercent}% Booked
                           </span>
                         </div>
-
-                        <div className="flex justify-end pt-2 border-t border-slate-100">
-                          <DeleteHostelButton hostelId={hostel.id} hostelName={hostel.name} />
+                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-700 ${
+                              isFull
+                                ? "bg-rose-500"
+                                : isHighDemand
+                                ? "bg-orange-500"
+                                : "bg-emerald-500"
+                            }`}
+                            style={{ width: `${occupancyPercent}%` }}
+                          />
                         </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <span className="text-xl font-bold text-slate-900">
+                            {formatINR(hostel.monthlyPrice)}
+                          </span>
+                          <span className="text-xs text-slate-400 font-normal">/mo</span>
+                        </div>
+                        <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                          {formatINR(hostel.dailyPrice)}/day
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2.5 border-t border-slate-100">
+                        <Link
+                          href={`/dashboard/manager/listings/edit?id=${hostel.id}`}
+                          className="px-3 py-1.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 text-cyan-800 text-xs font-semibold transition"
+                          title="Full Property Editor"
+                        >
+                          Edit Listing ↗
+                        </Link>
+                        <DeleteHostelButton hostelId={hostel.id} hostelName={hostel.name} />
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
