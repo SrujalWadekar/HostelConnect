@@ -45,6 +45,7 @@ export default async function StudentDashboardPage() {
     select: {
       id: true,
       name: true,
+      ownerName: true,
       ownerPhone: true,
       type: true,
       city: true,
@@ -83,10 +84,12 @@ export default async function StudentDashboardPage() {
 
     const hasApprovedBooking = approvedHostelIds.has(h.id);
     const hasReviewed = user ? h.reviews.some((r) => r.userId === user.id) : false;
+    const isAadhaarVerified = Boolean(h.aadhaarNumber && h.aadhaarNumber.trim().length >= 12);
 
     return {
       id: h.id,
       name: h.name,
+      ownerName: h.ownerName,
       ownerPhone: h.ownerPhone,
       type: h.type,
       city: h.city,
@@ -95,7 +98,7 @@ export default async function StudentDashboardPage() {
       monthlyPrice: h.monthlyPrice,
       availableBeds: h.availableBeds,
       gender: h.gender,
-      aadhaarNumber: h.aadhaarNumber,
+      isAadhaarVerified,
       avgRating,
       reviewCount,
       canReview: hasApprovedBooking && !hasReviewed,

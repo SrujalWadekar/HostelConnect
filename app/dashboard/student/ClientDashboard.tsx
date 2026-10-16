@@ -6,6 +6,7 @@ import RequestBedButton from "@/components/RequestBedButton";
 import { motion } from "framer-motion";
 import ReviewsModal from "@/components/ReviewsModal";
 import ChatModal, { ChatModalProps } from "@/components/ChatModal";
+import PropertyDetailsModal, { PropertyDetailsData } from "@/components/PropertyDetailsModal";
 
 interface ReviewItem {
   id: string;
@@ -18,6 +19,7 @@ interface ReviewItem {
 interface Property {
   id: string;
   name: string;
+  ownerName?: string | null;
   ownerPhone?: string | null;
   type: string;
   city: string;
@@ -26,6 +28,7 @@ interface Property {
   monthlyPrice: number;
   availableBeds: number;
   gender: string;
+  isAadhaarVerified?: boolean;
   aadhaarNumber?: string | null;
   avgRating: number | null;
   reviewCount: number;
@@ -66,6 +69,7 @@ export default function ClientDashboard({
   const [hideFull, setHideFull] = useState(false);
   const [seenStatuses, setSeenStatuses] = useState<Record<string, string>>({});
   const [reviewModalHostel, setReviewModalHostel] = useState<Property | null>(null);
+  const [selectedPropertyModal, setSelectedPropertyModal] = useState<Property | null>(null);
   const [activeChat, setActiveChat] = useState<Omit<ChatModalProps, "onClose"> | null>(null);
 
   useEffect(() => {
@@ -444,7 +448,9 @@ export default function ClientDashboard({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
                   whileHover={{ y: -4 }}
-                  className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-cyan-300 transition-all duration-300"
+                  onClick={() => setSelectedPropertyModal(h)}
+                  className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-cyan-400 hover:ring-2 hover:ring-cyan-400/20 transition-all duration-300 cursor-pointer"
+                  title="Click to view full property details, sharing options & amenities"
                 >
                   <div>
                     {/* Top Row Badges */}
@@ -456,7 +462,7 @@ export default function ClientDashboard({
                         <span className="rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-600">
                           {h.gender === "ANY" ? "Co-ed" : h.gender === "MALE" ? "Boys" : "Girls"}
                         </span>
-                        {h.aadhaarNumber && h.aadhaarNumber.trim().length >= 12 ? (
+                        {h.isAadhaarVerified || (h.aadhaarNumber && h.aadhaarNumber.trim().length >= 12) ? (
                           <span className="rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 flex items-center gap-1" title="Aadhaar Verified Host">
                             <span>🛡️</span>
                             <span>Aadhaar Verified</span>
@@ -494,7 +500,11 @@ export default function ClientDashboard({
                       </h3>
 
                       <button
-                        onClick={() => setReviewModalHostel(h)}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setReviewModalHostel(h);
+                        }}
                         className="shrink-0 flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg hover:bg-amber-100 transition cursor-pointer"
                         title="View student reviews"
                       >
@@ -546,6 +556,7 @@ export default function ClientDashboard({
                         {h.ownerPhone ? (
                           <a
                             href={`tel:+91${h.ownerPhone.replace(/\D/g, "").slice(-10)}`}
+                            onClick={(e) => e.stopPropagation()}
                             className="font-mono text-xs font-bold text-slate-700 hover:text-cyan-700 hover:underline truncate"
                             title={`Call manager: +91 ${h.ownerPhone}`}
                           >
@@ -558,17 +569,18 @@ export default function ClientDashboard({
 
                       <button
                         type="button"
-                        onClick={() =>
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setActiveChat({
                             chatId: `prop_${h.id}`,
                             title: h.name,
                             subtitle: `Direct Manager Inquiry • ${h.city}`,
-                            recipientName: `Manager of ${h.name}`,
+                            recipientName: h.ownerName || `Manager of ${h.name}`,
                             recipientPhone: h.ownerPhone,
                             senderRole: "STUDENT",
                             propertyTitle: h.name,
-                          })
-                        }
+                          });
+                        }}
                         className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 rounded-lg transition cursor-pointer shrink-0"
                         title="Chat with property manager"
                       >
@@ -576,10 +588,19 @@ export default function ClientDashboard({
                         <span>Chat</span>
                       </button>
                     </div>
+
+                    {/* Interactive "Click for details" bar */}
+                    <div className="mt-3 flex items-center justify-between text-[11px] font-bold text-cyan-700 bg-cyan-50/80 group-hover:bg-cyan-100/90 group-hover:text-cyan-950 px-3 py-1.5 rounded-xl border border-cyan-200/70 transition">
+                      <span className="flex items-center gap-1.5">
+                        <span>📋</span>
+                        <span>Click box for all details & amenities</span>
+                      </span>
+                      <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                    </div>
                   </div>
 
                   {/* Bed Request CTA */}
-                  <div className="mt-3">
+                  <div className="mt-3" onClick={(e) => e.stopPropagation()}>
                     <RequestBedButton hostelId={h.id} stayType={stayType} />
                   </div>
                 </motion.div>
@@ -588,6 +609,49 @@ export default function ClientDashboard({
           </div>
         )}
       </section>
+
+      {/* Property Details Modal */}
+      {selectedPropertyModal && (
+        <PropertyDetailsModal
+          property={{
+            id: selectedPropertyModal.id,
+            name: selectedPropertyModal.name,
+            ownerName: selectedPropertyModal.ownerName,
+            ownerPhone: selectedPropertyModal.ownerPhone,
+            type: selectedPropertyModal.type,
+            city: selectedPropertyModal.city,
+            address: selectedPropertyModal.address,
+            dailyPrice: selectedPropertyModal.dailyPrice,
+            monthlyPrice: selectedPropertyModal.monthlyPrice,
+            availableBeds: selectedPropertyModal.availableBeds,
+            gender: selectedPropertyModal.gender,
+            isAadhaarVerified: Boolean(
+              selectedPropertyModal.isAadhaarVerified ||
+              (selectedPropertyModal.aadhaarNumber && selectedPropertyModal.aadhaarNumber.trim().length >= 12)
+            ),
+            avgRating: selectedPropertyModal.avgRating,
+            reviewCount: selectedPropertyModal.reviewCount,
+            canReview: selectedPropertyModal.canReview,
+            reviews: selectedPropertyModal.reviews || [],
+          }}
+          onClose={() => setSelectedPropertyModal(null)}
+          onStartChat={(p) => {
+            setSelectedPropertyModal(null);
+            setActiveChat({
+              chatId: `prop_${p.id}`,
+              title: p.name,
+              subtitle: `Direct Manager Inquiry • ${p.city}`,
+              recipientName: p.ownerName || `Manager of ${p.name}`,
+              recipientPhone: p.ownerPhone,
+              senderRole: "STUDENT",
+              propertyTitle: p.name,
+            });
+          }}
+          onOpenReviews={(p) => {
+            setReviewModalHostel(p as any);
+          }}
+        />
+      )}
 
       {/* Reviews Modal */}
       {reviewModalHostel && (
