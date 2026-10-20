@@ -1,14 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useBookingChat } from "./useBookingChat";
 
-export interface ChatMessage {
-  id: string;
-  sender: "ME" | "OTHER";
-  senderName: string;
-  text: string;
-  timestamp: string;
-}
+export type { ChatMessage } from "./useBookingChat";
 
 export interface ChatModalProps {
   chatId: string;
@@ -31,15 +26,15 @@ export default function ChatModal({
   propertyTitle,
   onClose,
 }: ChatModalProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // Callers pass `booking_<id>`; the database only needs the id
+  const bookingId = chatId.replace(/^booking_/, "");
+  const { messages, loading, sending, error, send } = useBookingChat(bookingId);
+
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const cleanPhone = recipientPhone ? recipientPhone.replace(/\D/g, "").slice(-10) : null;
 
-  const storageKey = `hc_chat_${chatId}`;
-
-  // Quick suggestions based on role
   const quickSuggestions =
     senderRole === "STUDENT"
       ? [
@@ -56,76 +51,24 @@ export default function ChatModal({
         ];
 
   useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        setMessages(JSON.parse(saved));
-        return;
-      } catch {
-        // Fall back to seed
-      }
-    }
-
-    // Default seed conversation if first time
-    const initialSeed: ChatMessage[] = [
-      {
-        id: "msg-1",
-        sender: "OTHER",
-        senderName: recipientName,
-        text:
-          senderRole === "STUDENT"
-            ? `Hello! Thank you for your interest in ${propertyTitle || "our property"}. How can I assist you with your stay?`
-            : `Hello! I submitted a booking request for ${propertyTitle || "your property"} and would love to confirm move-in details.`,
-        timestamp: new Intl.DateTimeFormat("en-IN", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        }).format(new Date(Date.now() - 1000 * 60 * 15)),
-      },
-    ];
-
-    setMessages(initialSeed);
-    localStorage.setItem(storageKey, JSON.stringify(initialSeed));
-  }, [storageKey, recipientName, senderRole, propertyTitle]);
-
-  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function handleSend(textToSend?: string) {
+  async function handleSend(textToSend?: string) {
     const content = (textToSend || inputText).trim();
     if (!content) return;
-
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      sender: "ME",
-      senderName: "You",
-      text: content,
-      timestamp: new Intl.DateTimeFormat("en-IN", {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true,
-      }).format(new Date()),
-    };
-
-    const updated = [...messages, newMsg];
-    setMessages(updated);
-    localStorage.setItem(storageKey, JSON.stringify(updated));
     setInputText("");
+    await send(content);
   }
 
   const isStudent = senderRole === "STUDENT";
   const accentTheme = isStudent
     ? {
         bubble: "bg-gradient-to-r from-cyan-600 to-blue-600 text-white",
-        avatar: "bg-cyan-500",
-        badge: "bg-cyan-50 border-cyan-200 text-cyan-800",
         sendBtn: "bg-cyan-600 hover:bg-cyan-500",
       }
     : {
         bubble: "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
-        avatar: "bg-amber-500",
-        badge: "bg-amber-50 border-amber-200 text-amber-800",
         sendBtn: "bg-amber-600 hover:bg-amber-500",
       };
 
@@ -155,19 +98,12 @@ export default function ChatModal({
             </div>
 
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-slate-900 text-sm sm:text-base truncate">
-                  {title}
-                </h3>
-              </div>
-              <p className="text-xs text-slate-500 truncate">
-                {subtitle || recipientName}
-              </p>
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base truncate">{title}</h3>
+              <p className="text-xs text-slate-500 truncate">{subtitle || recipientName}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* Phone direct call */}
             {cleanPhone && (
               <a
                 href={`tel:+91${cleanPhone}`}
@@ -179,7 +115,6 @@ export default function ChatModal({
               </a>
             )}
 
-            {/* WhatsApp link */}
             {whatsappUrl && (
               <a
                 href={whatsappUrl}
@@ -193,7 +128,6 @@ export default function ChatModal({
               </a>
             )}
 
-            {/* Close Button */}
             <button
               type="button"
               onClick={onClose}
@@ -204,45 +138,58 @@ export default function ChatModal({
           </div>
         </div>
 
-        {/* CONTACT BAR IF PHONE NUMBER EXISTS */}
+        {/* CONTACT BAR */}
         {cleanPhone ? (
           <div className="bg-cyan-50/60 border-b border-cyan-100 px-4 py-2 flex items-center justify-between text-xs">
             <span className="text-slate-600 flex items-center gap-1.5">
               <span className="font-semibold text-slate-900">Verified Contact:</span>
-              <span className="font-mono text-cyan-800 font-bold">+91 {cleanPhone.slice(0, 5)} {cleanPhone.slice(5)}</span>
+              <span className="font-mono text-cyan-800 font-bold">
+                +91 {cleanPhone.slice(0, 5)} {cleanPhone.slice(5)}
+              </span>
             </span>
             <span className="text-[10px] uppercase font-bold text-cyan-700 tracking-wider">Direct Access</span>
           </div>
         ) : (
           <div className="bg-slate-50 border-b border-slate-100 px-4 py-1.5 text-[11px] text-slate-500">
-            <span>In-app chat active • Messages saved locally</span>
+            <span>Live in-app chat • Both of you see the same conversation</span>
           </div>
         )}
 
-        {/* MESSAGE BUBBLES CONTAINER */}
+        {/* MESSAGES */}
         <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-3 bg-[#f8fafc]">
-          {messages.map((msg) => {
-            const isMe = msg.sender === "ME";
-            return (
-              <div
-                key={msg.id}
-                className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
-              >
-                <div
-                  className={`max-w-[82%] rounded-2xl p-3.5 text-xs sm:text-sm shadow-xs ${
-                    isMe
-                      ? `${accentTheme.bubble} rounded-tr-xs`
-                      : "bg-white text-slate-900 border border-slate-200 rounded-tl-xs"
-                  }`}
-                >
-                  <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+          {error && (
+            <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl">
+              {error}
+            </div>
+          )}
+
+          {loading && messages.length === 0 ? (
+            <p className="text-center text-xs text-slate-400 py-10">Loading messages…</p>
+          ) : messages.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-3xl mb-2">👋</p>
+              <p className="text-sm font-bold text-slate-700">No messages yet</p>
+              <p className="text-xs text-slate-400 mt-1">Say hello to start the conversation.</p>
+            </div>
+          ) : (
+            messages.map((msg) => {
+              const isMe = msg.sender === "ME";
+              return (
+                <div key={msg.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
+                  <div
+                    className={`max-w-[82%] rounded-2xl p-3.5 text-xs sm:text-sm shadow-xs ${
+                      isMe
+                        ? `${accentTheme.bubble} rounded-tr-xs`
+                        : "bg-white text-slate-900 border border-slate-200 rounded-tl-xs"
+                    }`}
+                  >
+                    <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                  </div>
+                  <span className="text-[10px] text-slate-400 mt-1 px-1 font-medium">{msg.timestamp}</span>
                 </div>
-                <span className="text-[10px] text-slate-400 mt-1 px-1 font-medium">
-                  {msg.timestamp}
-                </span>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
           <div ref={messagesEndRef} />
         </div>
 
@@ -260,7 +207,7 @@ export default function ChatModal({
           ))}
         </div>
 
-        {/* INPUT COMPOSER */}
+        {/* COMPOSER */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -272,13 +219,14 @@ export default function ChatModal({
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
+            maxLength={1000}
             placeholder={`Message ${recipientName}...`}
             className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-cyan-500 transition"
           />
 
           <button
             type="submit"
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() || sending}
             className={`px-4 py-2.5 rounded-xl text-white text-xs sm:text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${accentTheme.sendBtn}`}
           >
             Send

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ChatMessage } from "@/components/ChatModal";
+import { useBookingChat } from "@/components/useBookingChat";
 
 export interface PropertyConversation {
   bookingId: string;
@@ -27,7 +27,6 @@ interface StudentMessageCenterClientProps {
 
 export default function StudentMessageCenterClient({
   conversations = [],
-  studentName,
 }: StudentMessageCenterClientProps) {
   const [selectedChatId, setSelectedChatId] = useState<string>(
     conversations[0]?.bookingId || ""
@@ -36,8 +35,7 @@ export default function StudentMessageCenterClient({
 
   const activeConv = conversations.find((c) => c.bookingId === selectedChatId) || conversations[0];
 
-  const storageKey = activeConv ? `hc_chat_booking_${activeConv.bookingId}` : "";
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const { messages, send } = useBookingChat(activeConv?.bookingId);
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -55,62 +53,15 @@ export default function StudentMessageCenterClient({
     "Are laundry and washing machine facilities available?",
   ];
 
-  // Load chat messages
-  useEffect(() => {
-    if (!storageKey || !activeConv) return;
-
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        setMessages(JSON.parse(saved));
-        return;
-      } catch {
-        // Fallback
-      }
-    }
-
-    const initialSeed: ChatMessage[] = [
-      {
-        id: `seed-1-${activeConv.bookingId}`,
-        sender: "OTHER",
-        senderName: activeConv.managerName || `Manager of ${activeConv.hostelName}`,
-        text: `Hello ${studentName}! Thank you for your inquiry about ${activeConv.hostelName}. How can I assist you with your room booking or visit?`,
-        timestamp: new Intl.DateTimeFormat("en-IN", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        }).format(new Date(Date.now() - 1000 * 60 * 20)),
-      },
-    ];
-
-    setMessages(initialSeed);
-    localStorage.setItem(storageKey, JSON.stringify(initialSeed));
-  }, [storageKey, activeConv, studentName]);
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = (textToSend?: string) => {
+  const handleSend = async (textToSend?: string) => {
     const text = (textToSend || inputText).trim();
-    if (!text || !storageKey) return;
-
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      sender: "ME",
-      senderName: studentName || "You",
-      text,
-      timestamp: new Intl.DateTimeFormat("en-IN", {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true,
-      }).format(new Date()),
-    };
-
-    const updated = [...messages, newMsg];
-    setMessages(updated);
-    localStorage.setItem(storageKey, JSON.stringify(updated));
+    if (!text || !activeConv) return;
     setInputText("");
+    await send(text);
   };
 
   const filteredConversations = conversations.filter((c) => {
@@ -316,6 +267,12 @@ export default function StudentMessageCenterClient({
                     </span>
                   </div>
 
+                  {messages.length === 0 && (
+                    <p className="text-center text-xs text-slate-400 py-8">
+                      No messages yet. Send a question to the manager to start the conversation.
+                    </p>
+                  )}
+
                   {messages.map((msg) => {
                     const isMe = msg.sender === "ME";
                     return (
@@ -375,6 +332,7 @@ export default function StudentMessageCenterClient({
                       type="text"
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
+                      maxLength={1000}
                       placeholder="Type a message or question to the manager..."
                       className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-900 outline-none focus:border-cyan-600 bg-slate-50 focus:bg-white transition"
                     />
@@ -400,4 +358,3 @@ export default function StudentMessageCenterClient({
     </div>
   );
 }
-

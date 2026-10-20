@@ -39,6 +39,7 @@ model User {
   hostels         Hostel[]
   bookingRequests BookingRequest[]
   reviews         Review[]
+  messages        Message[]
 }
 
 // 3. The Hostel Model
@@ -78,7 +79,8 @@ model BookingRequest {
   hostelId  String
   hostel    Hostel   @relation(fields: [hostelId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  messages  Message[]
 }
 
 // 5. The Review Model
@@ -94,4 +96,20 @@ model Review {
   hostel    Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+}
+
+// 6. The Message Model (chat between student and manager)
+model Message {
+  id        String         @id @default(cuid())
+  text      String
+
+  bookingId String
+  booking   BookingRequest @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  senderId  String
+  sender    User           @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime       @default(now())
+
+  @@index([bookingId, createdAt])
 }
