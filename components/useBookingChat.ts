@@ -29,17 +29,31 @@ export function useBookingChat(bookingId: string | null | undefined) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsBooking, setNeedsBooking] = useState(false);
   const activeId = useRef<string | null>(null);
 
   const load = useCallback(async (id: string) => {
     try {
       const res = await fetch(`/api/messages/${id}`, { cache: "no-store" });
-      if (!res.ok) throw new Error("Failed to load");
-      const data = (await res.json()) as { messages: ApiMessage[] };
 
       // Ignore late responses from a conversation we've already switched away from
       if (activeId.current !== id) return;
 
+      if (res.status === 404) {
+        const body = await res.json().catch(() => null);
+        if (body?.error === "NO_BOOKING") {
+          setNeedsBooking(true);
+          setMessages([]);
+          setError(null);
+          return;
+        }
+      }
+
+      if (!res.ok) throw new Error("Failed to load");
+      const data = (await res.json()) as { messages: ApiMessage[] };
+      if (activeId.current !== id) return;
+
+      setNeedsBooking(false);
       setMessages(
         data.messages.map((m) => ({
           id: m.id,
@@ -60,6 +74,7 @@ export function useBookingChat(bookingId: string | null | undefined) {
   useEffect(() => {
     activeId.current = bookingId ?? null;
     setMessages([]);
+    setNeedsBooking(false);
     setLoading(Boolean(bookingId));
     if (!bookingId) return;
 
@@ -74,7 +89,7 @@ export function useBookingChat(bookingId: string | null | undefined) {
   const send = useCallback(
     async (text: string) => {
       const clean = text.trim();
-      if (!bookingId || !clean) return false;
+      if (!bookingId || !clean || needsBooking) return false;
 
       const tempId = `tmp-${Date.now()}`;
       setMessages((prev) => [
@@ -106,8 +121,8 @@ export function useBookingChat(bookingId: string | null | undefined) {
         setSending(false);
       }
     },
-    [bookingId, load]
+    [bookingId, load, needsBooking]
   );
 
-  return { messages, loading, sending, error, send };
+  return { messages, loading, sending, error, needsBooking, send };
 }

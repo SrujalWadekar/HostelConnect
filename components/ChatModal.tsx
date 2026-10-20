@@ -28,7 +28,7 @@ export default function ChatModal({
 }: ChatModalProps) {
   // Callers pass `booking_<id>`; the database only needs the id
   const bookingId = chatId.replace(/^booking_/, "");
-  const { messages, loading, sending, error, send } = useBookingChat(bookingId);
+  const { messages, loading, sending, error, needsBooking, send } = useBookingChat(bookingId);
 
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -38,17 +38,17 @@ export default function ChatModal({
   const quickSuggestions =
     senderRole === "STUDENT"
       ? [
-          "Can I schedule a visit to see the room?",
-          "Are meals/food included in the monthly rent?",
-          "What is the security deposit amount?",
-          "What are the gate timings and curfew?",
-        ]
+        "Can I schedule a visit to see the room?",
+        "Are meals/food included in the monthly rent?",
+        "What is the security deposit amount?",
+        "What are the gate timings and curfew?",
+      ]
       : [
-          "Your booking request is approved! You can move in anytime.",
-          "Please visit the hostel between 10 AM and 6 PM for verification.",
-          "Security deposit is 1 month rent, fully refundable on checkout.",
-          "Gate closes at 10:30 PM on weekdays and 11 PM on weekends.",
-        ];
+        "Your booking request is approved! You can move in anytime.",
+        "Please visit the hostel between 10 AM and 6 PM for verification.",
+        "Security deposit is 1 month rent, fully refundable on checkout.",
+        "Gate closes at 10:30 PM on weekdays and 11 PM on weekends.",
+      ];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -64,18 +64,18 @@ export default function ChatModal({
   const isStudent = senderRole === "STUDENT";
   const accentTheme = isStudent
     ? {
-        bubble: "bg-gradient-to-r from-cyan-600 to-blue-600 text-white",
-        sendBtn: "bg-cyan-600 hover:bg-cyan-500",
-      }
+      bubble: "bg-gradient-to-r from-cyan-600 to-blue-600 text-white",
+      sendBtn: "bg-cyan-600 hover:bg-cyan-500",
+    }
     : {
-        bubble: "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
-        sendBtn: "bg-amber-600 hover:bg-amber-500",
-      };
+      bubble: "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
+      sendBtn: "bg-amber-600 hover:bg-amber-500",
+    };
 
   const whatsappUrl = cleanPhone
     ? `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(
-        `Hi ${recipientName}, I am contacting you from HostelConnect regarding ${propertyTitle || "the accommodation"}.`
-      )}`
+      `Hi ${recipientName}, I am contacting you from HostelConnect regarding ${propertyTitle || "the accommodation"}.`
+    )}`
     : null;
 
   return (
@@ -163,7 +163,15 @@ export default function ChatModal({
             </div>
           )}
 
-          {loading && messages.length === 0 ? (
+          {needsBooking ? (
+            <div className="text-center py-10 px-4">
+              <p className="text-3xl mb-2">🛏️</p>
+              <p className="text-sm font-bold text-slate-700">Request a bed to start chatting</p>
+              <p className="text-xs text-slate-400 mt-1">
+                Once you send a bed request for this property, you can message the manager here.
+              </p>
+            </div>
+          ) : loading && messages.length === 0 ? (
             <p className="text-center text-xs text-slate-400 py-10">Loading messages…</p>
           ) : messages.length === 0 ? (
             <div className="text-center py-10">
@@ -177,11 +185,10 @@ export default function ChatModal({
               return (
                 <div key={msg.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
                   <div
-                    className={`max-w-[82%] rounded-2xl p-3.5 text-xs sm:text-sm shadow-xs ${
-                      isMe
-                        ? `${accentTheme.bubble} rounded-tr-xs`
-                        : "bg-white text-slate-900 border border-slate-200 rounded-tl-xs"
-                    }`}
+                    className={`max-w-[82%] rounded-2xl p-3.5 text-xs sm:text-sm shadow-xs ${isMe
+                      ? `${accentTheme.bubble} rounded-tr-xs`
+                      : "bg-white text-slate-900 border border-slate-200 rounded-tl-xs"
+                      }`}
                   >
                     <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                   </div>

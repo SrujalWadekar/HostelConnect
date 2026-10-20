@@ -5,7 +5,20 @@ import { prisma } from "@/lib/prisma";
 
 type Ctx = { params: Promise<{ bookingId: string }> };
 
-async function authorize(bookingId: string) {
+// Property-card chats use "prop_<hostelId>". Map that to this student's latest booking.
+async function resolveBookingId(rawId: string, userId: string): Promise<string | null> {
+  if (!rawId.startsWith("prop_")) return rawId;
+
+  const hostelId = rawId.slice("prop_".length);
+  const booking = await prisma.bookingRequest.findFirst({
+    where: { hostelId, userId },
+    orderBy: { createdAt: "desc" },
+    select: { id: true },
+  });
+  return booking?.id ?? null;
+}
+
+async function authorize(rawId: string) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
@@ -19,12 +32,17 @@ async function authorize(bookingId: string) {
     return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   }
 
+  const bookingId = await resolveBookingId(rawId, user.id);
+  if (!bookingId) {
+    return { error: NextResponse.json({ error: "NO_BOOKING" }, { status: 404 }) };
+  }
+
   const booking = await prisma.bookingRequest.findUnique({
     where: { id: bookingId },
     select: { userId: true, hostel: { select: { managerId: true } } },
   });
   if (!booking) {
-    return { error: NextResponse.json({ error: "Not found" }, { status: 404 }) };
+    return { error: NextResponse.json({ error: "NO_BOOKING" }, { status: 404 }) };
   }
 
   // Only the student who made the request, or the manager of that hostel
@@ -32,16 +50,16 @@ async function authorize(bookingId: string) {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
 
-  return { user };
+  return { user, bookingId };
 }
 
 export async function GET(_req: Request, { params }: Ctx) {
-  const { bookingId } = await params;
-  const auth = await authorize(bookingId);
+  const { bookingId: rawId } = await params;
+  const auth = await authorize(rawId);
   if ("error" in auth) return auth.error;
 
   const rows = await prisma.message.findMany({
-    where: { bookingId },
+    where: { bookingId: auth.bookingId },
     orderBy: { createdAt: "desc" },
     take: 200,
     select: {
@@ -65,8 +83,8 @@ export async function GET(_req: Request, { params }: Ctx) {
 }
 
 export async function POST(req: Request, { params }: Ctx) {
-  const { bookingId } = await params;
-  const auth = await authorize(bookingId);
+  const { bookingId: rawId } = await params;
+  const auth = await authorize(rawId);
   if ("error" in auth) return auth.error;
 
   let body: { text?: unknown };
@@ -85,7 +103,7 @@ export async function POST(req: Request, { params }: Ctx) {
   }
 
   await prisma.message.create({
-    data: { bookingId, senderId: auth.user.id, text },
+    data: { bookingId: auth.bookingId, senderId: auth.user.id, text },
   });
 
   return NextResponse.json({ ok: true });

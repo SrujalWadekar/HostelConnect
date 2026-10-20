@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ChatMessage } from "@/components/ChatModal";
+import { useBookingChat } from "@/components/useBookingChat";
 
 export interface StudentConversation {
   bookingId: string;
@@ -24,7 +24,6 @@ interface ManagerMessageCenterClientProps {
 
 export default function ManagerMessageCenterClient({
   conversations = [],
-  managerName,
   managerHasAadhaar,
 }: ManagerMessageCenterClientProps) {
   const [selectedChatId, setSelectedChatId] = useState<string>(
@@ -35,8 +34,7 @@ export default function ManagerMessageCenterClient({
 
   const activeConv = conversations.find((c) => c.bookingId === selectedChatId) || conversations[0];
 
-  const storageKey = activeConv ? `hc_chat_booking_${activeConv.bookingId}` : "";
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const { messages, send } = useBookingChat(activeConv?.bookingId);
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -50,62 +48,15 @@ export default function ManagerMessageCenterClient({
     "Wi-Fi details and bed allocation will be shared on move-in day.",
   ];
 
-  // Load chat messages for the selected conversation
-  useEffect(() => {
-    if (!storageKey || !activeConv) return;
-
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        setMessages(JSON.parse(saved));
-        return;
-      } catch {
-        // Fallback to initial seed
-      }
-    }
-
-    const initialSeed: ChatMessage[] = [
-      {
-        id: `seed-1-${activeConv.bookingId}`,
-        sender: "OTHER",
-        senderName: activeConv.studentName,
-        text: `Hello! I submitted a bed booking request for ${activeConv.hostelName}. Is a bed currently available for this semester?`,
-        timestamp: new Intl.DateTimeFormat("en-IN", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        }).format(new Date(Date.now() - 1000 * 60 * 30)),
-      },
-    ];
-
-    setMessages(initialSeed);
-    localStorage.setItem(storageKey, JSON.stringify(initialSeed));
-  }, [storageKey, activeConv]);
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = (textToSend?: string) => {
+  const handleSend = async (textToSend?: string) => {
     const text = (textToSend || inputText).trim();
-    if (!text || !storageKey) return;
-
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      sender: "ME",
-      senderName: managerName || "Manager",
-      text,
-      timestamp: new Intl.DateTimeFormat("en-IN", {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true,
-      }).format(new Date()),
-    };
-
-    const updated = [...messages, newMsg];
-    setMessages(updated);
-    localStorage.setItem(storageKey, JSON.stringify(updated));
+    if (!text || !activeConv) return;
     setInputText("");
+    await send(text);
   };
 
   const filteredConversations = conversations.filter((c) => {
@@ -338,9 +289,15 @@ export default function ManagerMessageCenterClient({
                 <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5 bg-slate-50/30">
                   <div className="text-center py-2">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-                      End-to-End Private Channel
+                      Private Channel
                     </span>
                   </div>
+
+                  {messages.length === 0 && (
+                    <p className="text-center text-xs text-slate-400 py-8">
+                      No messages yet. Send the first reply to start the conversation.
+                    </p>
+                  )}
 
                   {messages.map((msg) => {
                     const isMe = msg.sender === "ME";
@@ -401,6 +358,7 @@ export default function ManagerMessageCenterClient({
                       type="text"
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
+                      maxLength={1000}
                       placeholder="Type your response to the student..."
                       className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-900 outline-none focus:border-cyan-600 bg-slate-50 focus:bg-white transition"
                     />
@@ -426,4 +384,3 @@ export default function ManagerMessageCenterClient({
     </div>
   );
 }
-
